@@ -18,17 +18,17 @@ async function addDataToMap() {
   L.geoJson(data, {
     style: function(feature) {
       if(visited.get(feature.properties.OTEIL)) {
-        return {color: "#50C878", opacity: 1, fillColor: "#50C878", fillOpacity: 0.4, weight: 2};
+        return {color: "#50C878", opacity: 1, fillColor: "#50C878", fillOpacity: 0.3, weight: 2};
       } else {
         return {color: "grey", opacity: 1, fillColor: "grey", fillOpacity: 0.2, weight: 2};
       }
     },
     onEachFeature: function(feature, layer) {
-      var content = "<strong>" + feature.properties.OTEIL + " / " + feature.properties.BEZIRK + "</strong>"
+      var content = "<em>" + feature.properties.OTEIL + " (" + feature.properties.BEZIRK + ")</em>"
       var location = visited.get(feature.properties.OTEIL)
       if(location) {
-        content += "<br />" + location[4] + ", " + location[4] + " - " + location[6]
-        content += "<br />" + location[5]
+        content += "<br /><strong>" + location[6] + " - " + location[5] + "</strong>"
+        content += "<br />" + location[3] + ", " + location[4]
       }
 
       layer.bindPopup(content);
