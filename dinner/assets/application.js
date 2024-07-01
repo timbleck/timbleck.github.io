@@ -9,7 +9,7 @@ async function addDataToMap() {
   var csv = await response.text();
   var visited = new Map(csv.split('\n').map(row => {
     values = row.split(',').map(value => value.replace('"', '').replace('\"', '')) 
-    return [values[0], values]
+    return [values[1], values]
   }));
 
   var response = await fetch("assets/lor_ortsteile.geojson");
@@ -27,8 +27,8 @@ async function addDataToMap() {
       var content = "<strong>" + feature.properties.OTEIL + " / " + feature.properties.BEZIRK + "</strong>"
       var location = visited.get(feature.properties.OTEIL)
       if(location) {
-        content += "<br />" + location[1] + " - " + location[2]
-        content += "<br />" + location[4]
+        content += "<br />" + location[4] + ", " + location[4] + " - " + location[6]
+        content += "<br />" + location[5]
       }
 
       layer.bindPopup(content);
