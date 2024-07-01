@@ -18,7 +18,7 @@ async function addDataToMap() {
   L.geoJson(data, {
     style: function(feature) {
       if(visited.get(feature.properties.OTEIL)) {
-        return {color: "#50C878", opacity: 1, fillColor: "#50C878", fillOpacity: 0.3, weight: 2};
+        return {color: "#grey", opacity: 1, fillColor: "#50C878", fillOpacity: 0.4, weight: 2};
       } else {
         return {color: "grey", opacity: 1, fillColor: "grey", fillOpacity: 0.2, weight: 2};
       }
