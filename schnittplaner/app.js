@@ -76,82 +76,109 @@ function loadState() {
 function guillotine(rects, binW, binH, kerf, allowRot) {
   let freeRects = [{ x: 0, y: 0, w: binW, h: binH }];
   const placed = [];
-  const cuts = []; // { x1,y1,x2,y2 } in board-mm, recorded in cut order
+  const cuts = [];
+  const remaining = [...rects]; // mutable – pieces removed as they are placed
 
-  for (const rect of rects) {
-    const { w: rw, h: rh } = rect;
-    // Two-level score: primary = BAF (min leftover area), secondary = BSSF (min short-side gap).
-    // BAF is identical for both rotations of the same piece in the same free rect
-    // (piece area doesn't change), so BSSF is what actually differentiates them.
-    let bestBaf  = Infinity;
-    let bestBssf = Infinity;
-    let bestIdx  = -1;
+  while (remaining.length > 0) {
+    // One-step lookahead: evaluate every (piece × free-rect × orientation) triple.
+    // Score = area placed now  +  area of remaining pieces that can still find a slot afterwards.
+    // This lets the algorithm prefer placements that keep future pieces placeable,
+    // even when that means choosing a smaller piece over a larger one right now.
+    let bestScore   = -Infinity;
+    let bestBaf     =  Infinity;
+    let bestBssf    =  Infinity;
+    let bestPi      = -1;
+    let bestFi      = -1;
     let bestRotated = false;
 
-    const tryFit = (i, fr, pw, ph, rotated) => {
-      // Piece must physically fit; kerf is only required where a cut will actually be made.
-      // If the piece fills the free rect to its edge, no cut → no kerf needed in that direction.
-      if (pw > fr.w || ph > fr.h) return;
-      const baf  = fr.w * fr.h - pw * ph;
-      // BSSF: leftover after piece + kerf, clamped to 0 when piece fills to the edge (no cut there).
-      const bssf = Math.min(Math.max(0, fr.w - pw - kerf), Math.max(0, fr.h - ph - kerf));
-      if (baf < bestBaf || (baf === bestBaf && bssf < bestBssf)) {
-        bestBaf  = baf;
-        bestBssf = bssf;
-        bestIdx  = i;
-        bestRotated = rotated;
-      }
-    };
+    for (let pi = 0; pi < remaining.length; pi++) {
+      const { w: rw, h: rh } = remaining[pi];
 
-    for (let i = 0; i < freeRects.length; i++) {
-      const fr = freeRects[i];
-      tryFit(i, fr, rw, rh, false);
-      if (allowRot && rh !== rw) tryFit(i, fr, rh, rw, true);
+      const evalOrientation = (pw, ph, rotated) => {
+        for (let fi = 0; fi < freeRects.length; fi++) {
+          const fr = freeRects[fi];
+          if (pw > fr.w || ph > fr.h) continue;
+
+          const usedW   = Math.min(pw + kerf, fr.w);
+          const usedH   = Math.min(ph + kerf, fr.h);
+          const rightW  = fr.w - usedW;
+          const bottomH = fr.h - usedH;
+
+          // Build the free-rect list that would result from this placement
+          const newFR = [];
+          for (let k = 0; k < freeRects.length; k++) {
+            if (k !== fi) newFR.push(freeRects[k]);
+          }
+          if (rightW >= bottomH) {
+            if (rightW  > 0) newFR.push({ x: fr.x + usedW, y: fr.y,       w: rightW,  h: fr.h    });
+            if (bottomH > 0) newFR.push({ x: fr.x,          y: fr.y + usedH, w: usedW, h: bottomH });
+          } else {
+            if (bottomH > 0) newFR.push({ x: fr.x,          y: fr.y + usedH, w: fr.w,   h: bottomH });
+            if (rightW  > 0) newFR.push({ x: fr.x + usedW, y: fr.y,          w: rightW, h: usedH   });
+          }
+
+          // Lookahead: which of the other remaining pieces could still be placed?
+          let score = pw * ph;
+          for (let pi2 = 0; pi2 < remaining.length; pi2++) {
+            if (pi2 === pi) continue;
+            const r2 = remaining[pi2];
+            if (newFR.some(f =>
+              (r2.w <= f.w && r2.h <= f.h) ||
+              (allowRot && r2.h <= f.w && r2.w <= f.h)
+            )) {
+              score += r2.w * r2.h;
+            }
+          }
+
+          // Tie-break 1: BAF (tighter slot preferred); Tie-break 2: BSSF
+          const baf  = fr.w * fr.h - pw * ph;
+          const bssf = Math.min(Math.max(0, fr.w - pw - kerf), Math.max(0, fr.h - ph - kerf));
+
+          if (score > bestScore ||
+             (score === bestScore && baf < bestBaf) ||
+             (score === bestScore && baf === bestBaf && bssf < bestBssf)) {
+            bestScore = score; bestBaf = baf; bestBssf = bssf;
+            bestPi = pi; bestFi = fi; bestRotated = rotated;
+          }
+        }
+      };
+
+      evalOrientation(rw, rh, false);
+      if (allowRot && rh !== rw) evalOrientation(rh, rw, true);
     }
 
-    if (bestIdx === -1) continue; // doesn't fit anywhere in this bin
+    if (bestPi === -1) break; // no piece fits anywhere
 
-    const fr = freeRects[bestIdx];
-    const pw = bestRotated ? rh : rw;
-    const ph = bestRotated ? rw : rh;
-    // Only consume kerf space where a cut will actually be made (not at sub-board edges).
+    // Commit the chosen placement
+    const rect  = remaining.splice(bestPi, 1)[0];
+    const fr    = freeRects[bestFi];
+    const pw    = bestRotated ? rect.h : rect.w;
+    const ph    = bestRotated ? rect.w : rect.h;
     const usedW = Math.min(pw + kerf, fr.w);
     const usedH = Math.min(ph + kerf, fr.h);
 
-    placed.push({
-      x: fr.x, y: fr.y,
-      w: pw, h: ph,
-      rotated: bestRotated,
-      id: rect.id, label: rect.label, color: rect.color,
-    });
+    placed.push({ x: fr.x, y: fr.y, w: pw, h: ph, rotated: bestRotated,
+                  id: rect.id, label: rect.label, color: rect.color });
 
-    // Remove the consumed free rect
-    freeRects.splice(bestIdx, 1);
+    freeRects.splice(bestFi, 1);
 
-    // Guillotine split: one cut produces exactly 2 new free rects.
-    // LAS heuristic: cut along the longer remaining axis so the bigger
-    // leftover strip is kept as a single large rectangle.
     const rightW  = fr.w - usedW;
     const bottomH = fr.h - usedH;
 
     if (rightW >= bottomH) {
-      // Primary cut: vertical, spans full height of sub-board
       if (rightW > 0) {
         cuts.push({ x1: fr.x + usedW, y1: fr.y, x2: fr.x + usedW, y2: fr.y + fr.h });
         freeRects.push({ x: fr.x + usedW, y: fr.y, w: rightW, h: fr.h });
       }
-      // Secondary cut: horizontal, only below the placed piece
       if (bottomH > 0) {
         cuts.push({ x1: fr.x, y1: fr.y + usedH, x2: fr.x + usedW, y2: fr.y + usedH });
         freeRects.push({ x: fr.x, y: fr.y + usedH, w: usedW, h: bottomH });
       }
     } else {
-      // Primary cut: horizontal, spans full width of sub-board
       if (bottomH > 0) {
         cuts.push({ x1: fr.x, y1: fr.y + usedH, x2: fr.x + fr.w, y2: fr.y + usedH });
         freeRects.push({ x: fr.x, y: fr.y + usedH, w: fr.w, h: bottomH });
       }
-      // Secondary cut: vertical, only beside the placed piece
       if (rightW > 0) {
         cuts.push({ x1: fr.x + usedW, y1: fr.y, x2: fr.x + usedW, y2: fr.y + usedH });
         freeRects.push({ x: fr.x + usedW, y: fr.y, w: rightW, h: usedH });
@@ -163,15 +190,6 @@ function guillotine(rects, binW, binH, kerf, allowRot) {
 }
 
 // ── Optimization runner ────────────────────────────────────────────────────
-
-// Five sort orderings tried per bin – best-utilisation result wins.
-const SORT_FNS = [
-  (a, b) => (b.w * b.h) - (a.w * a.h),                          // area ↓
-  (a, b) => (b.w + b.h) - (a.w + a.h),                          // perimeter ↓
-  (a, b) => Math.max(b.w, b.h) - Math.max(a.w, a.h),            // longest side ↓
-  (a, b) => Math.min(b.w, b.h) - Math.min(a.w, a.h),            // shortest side ↓
-  (a, b) => (a.w * a.h) - (b.w * b.h),                          // area ↑ (small-first)
-];
 
 function optimize() {
   const kerf = state.kerf;
@@ -198,17 +216,9 @@ function optimize() {
 
   for (const bin of allBins) {
     if (remaining.length === 0) break;
-
-    // Try every sort ordering; keep the run that places the most material area.
-    let best = null;
-    for (const sortFn of SORT_FNS) {
-      const sorted = [...remaining].sort(sortFn);
-      const result = guillotine(sorted, bin.w, bin.h, kerf, allowRot);
-      const area = result.placed.reduce((s, p) => s + p.w * p.h, 0);
-      if (!best || area > best.area) best = { ...result, area };
-    }
-
-    const { placed, cuts } = best;
+    // guillotine() now selects pieces globally via one-step lookahead,
+    // so no pre-sorting or multi-ordering is needed.
+    const { placed, cuts } = guillotine(remaining, bin.w, bin.h, kerf, allowRot);
     const placedSet = trackPlaced(remaining, placed);
     remaining = remaining.filter((_, idx) => !placedSet.has(idx));
     results.push({ bin, placed, cuts });
