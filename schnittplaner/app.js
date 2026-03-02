@@ -9,13 +9,13 @@ const COLORS = [
 ];
 
 const DEFAULT_SHEETS = [
-  { id: uid(), name: 'OSB', w: 2440, h: 1220, count: 2 },
+  { id: uid(), name: 'OSB', w: 1250, h: 625, count: 2 },
 ];
 
 const DEFAULT_PIECES = [
-  { id: uid(), label: 'Regalseite', w: 800, h: 400, count: 4, color: COLORS[0] },
-  { id: uid(), label: 'Regalboden', w: 580, h: 300, count: 6, color: COLORS[1] },
-  { id: uid(), label: 'Rückwand',   w: 760, h: 350, count: 2, color: COLORS[2] },
+  { id: uid(), label: 'Vorne und Hinten', w: 625, h: 400, count: 2, color: COLORS[0] },
+  { id: uid(), label: 'Seiten', w: 300, h: 400, count: 2, color: COLORS[1] },
+  { id: uid(), label: 'Boden und Deckel',   w: 625, h: 300, count: 2, color: COLORS[2] },
 ];
 
 // ── State ──────────────────────────────────────────────────────────────────
