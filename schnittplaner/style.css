@@ -80,6 +80,68 @@ main {
   gap: 12px;
 }
 
+/* ── Project bar ── */
+#project-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#project-select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-family: var(--font);
+  cursor: pointer;
+  min-width: 0;
+}
+
+#project-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#project-new,
+#project-rename,
+#project-delete {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background .15s, color .15s, border-color .15s;
+  color: var(--text-muted);
+}
+
+#project-new:hover,
+#project-rename:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#project-delete:hover:not(:disabled) {
+  background: #fdedec;
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+#project-delete:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* ── Cards ── */
 .card {
   background: var(--surface);

@@ -37,24 +37,119 @@ function clamp(v, lo, hi) {
   return Math.max(lo, Math.min(hi, v));
 }
 
-// ── LocalStorage ──────────────────────────────────────────────────────────
+// ── LocalStorage / Project management ─────────────────────────────────────
 
-function saveState() {
-  try {
-    localStorage.setItem('schnittplaner', JSON.stringify(state));
-  } catch (_) {}
-}
-
-function loadState() {
+function loadProjects() {
   try {
     const raw = localStorage.getItem('schnittplaner');
     if (raw) {
       const saved = JSON.parse(raw);
-      state = { ...state, ...saved };
-      return true;
+      // Migrate old flat format → projects envelope
+      if (saved.sheets) {
+        const id = uid();
+        const envelope = {
+          activeProject: id,
+          projects: [{ id, name: 'Projekt 1', sheets: saved.sheets,
+                       pieces: saved.pieces || [], kerf: saved.kerf ?? 3,
+                       allowRotation: saved.allowRotation ?? true }],
+        };
+        saveProjects(envelope);
+        return envelope;
+      }
+      if (saved.projects) return saved;
     }
   } catch (_) {}
-  return false;
+  return null;
+}
+
+function saveProjects(envelope) {
+  try {
+    localStorage.setItem('schnittplaner', JSON.stringify(envelope));
+  } catch (_) {}
+}
+
+function saveState() {
+  const env = loadProjects();
+  if (!env) return;
+  const proj = env.projects.find(p => p.id === env.activeProject);
+  if (!proj) return;
+  Object.assign(proj, { sheets: state.sheets, pieces: state.pieces,
+                        kerf: state.kerf, allowRotation: state.allowRotation });
+  saveProjects(env);
+}
+
+// ── Project UI helpers ─────────────────────────────────────────────────────
+
+function renderProjectSelect() {
+  const env = loadProjects();
+  if (!env) return;
+  const sel = document.getElementById('project-select');
+  sel.innerHTML = '';
+  for (const p of env.projects) {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name;
+    if (p.id === env.activeProject) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  document.getElementById('project-delete').disabled = env.projects.length <= 1;
+}
+
+function switchProject(id) {
+  const env = loadProjects();
+  if (!env) return;
+  const proj = env.projects.find(p => p.id === id);
+  if (!proj) return;
+  env.activeProject = id;
+  saveProjects(env);
+  state.sheets = proj.sheets;
+  state.pieces = proj.pieces;
+  state.kerf = proj.kerf ?? 3;
+  state.allowRotation = proj.allowRotation ?? true;
+  document.getElementById('kerf').value = state.kerf;
+  document.getElementById('allow-rotation').checked = state.allowRotation;
+  renderSheets();
+  renderPieces();
+  renderProjectSelect();
+}
+
+function newProject() {
+  const env = loadProjects() || { activeProject: null, projects: [] };
+  const id = uid();
+  env.projects.push({
+    id,
+    name: 'Projekt ' + (env.projects.length + 1),
+    sheets: DEFAULT_SHEETS.map(s => ({ ...s, id: uid() })),
+    pieces: DEFAULT_PIECES.map((p, i) => ({ ...p, id: uid(), color: COLORS[i % COLORS.length] })),
+    kerf: 3,
+    allowRotation: true,
+  });
+  env.activeProject = id;
+  saveProjects(env);
+  switchProject(id);
+}
+
+function renameProject() {
+  const env = loadProjects();
+  if (!env) return;
+  const proj = env.projects.find(p => p.id === env.activeProject);
+  if (!proj) return;
+  const name = prompt('Projektname:', proj.name);
+  if (!name || !name.trim()) return;
+  proj.name = name.trim();
+  saveProjects(env);
+  renderProjectSelect();
+}
+
+function deleteProject() {
+  const env = loadProjects();
+  if (!env || env.projects.length <= 1) return;
+  const proj = env.projects.find(p => p.id === env.activeProject);
+  if (!confirm(`Projekt „${proj ? proj.name : ''}" wirklich löschen?`)) return;
+  env.projects = env.projects.filter(p => p.id !== env.activeProject);
+  env.activeProject = env.projects[0].id;
+  saveProjects(env);
+  switchProject(env.activeProject);
 }
 
 // ── Guillotine + BAF Algorithm ─────────────────────────────────────────────
@@ -696,19 +791,48 @@ window.addEventListener('resize', () => {
   }, 150);
 });
 
+// ── Project event listeners ────────────────────────────────────────────────
+
+document.getElementById('project-select').addEventListener('change', e => {
+  switchProject(e.target.value);
+});
+
+document.getElementById('project-new').addEventListener('click', newProject);
+document.getElementById('project-rename').addEventListener('click', renameProject);
+document.getElementById('project-delete').addEventListener('click', deleteProject);
+
 // ── Init ───────────────────────────────────────────────────────────────────
 
 function init() {
-  const hadSaved = loadState();
-  if (!hadSaved) {
-    state.sheets = DEFAULT_SHEETS.map(s => ({ ...s, id: uid() }));
-    state.pieces = DEFAULT_PIECES.map((p, i) => ({ ...p, id: uid(), color: COLORS[i % COLORS.length] }));
+  let env = loadProjects();
+
+  if (!env) {
+    // First ever load – create default project
+    const id = uid();
+    env = {
+      activeProject: id,
+      projects: [{
+        id,
+        name: 'Projekt 1',
+        sheets: DEFAULT_SHEETS.map(s => ({ ...s, id: uid() })),
+        pieces: DEFAULT_PIECES.map((p, i) => ({ ...p, id: uid(), color: COLORS[i % COLORS.length] })),
+        kerf: 3,
+        allowRotation: true,
+      }],
+    };
+    saveProjects(env);
   }
 
-  // Sync settings inputs
+  const proj = env.projects.find(p => p.id === env.activeProject) || env.projects[0];
+  state.sheets = proj.sheets;
+  state.pieces = proj.pieces;
+  state.kerf = proj.kerf ?? 3;
+  state.allowRotation = proj.allowRotation ?? true;
+
   document.getElementById('kerf').value = state.kerf;
   document.getElementById('allow-rotation').checked = state.allowRotation;
 
+  renderProjectSelect();
   renderSheets();
   renderPieces();
 }
