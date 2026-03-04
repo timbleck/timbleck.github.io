@@ -535,4 +535,13 @@ canvas {
   .summary {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .canvas-wrapper {
+    padding: 10px;
+    overflow-x: hidden;
+  }
+
+  .canvas-card-header h3 {
+    font-size: 0.8rem;
+  }
 }

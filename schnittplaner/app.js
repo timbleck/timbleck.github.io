@@ -257,8 +257,8 @@ function trackPlaced(remaining, placed) {
 
 const MAX_CANVAS_W = 800; // max display width in px
 
-function renderCanvas(bin, placed, cuts) {
-  const scale = Math.min(MAX_CANVAS_W / bin.w, 1);
+function renderCanvas(bin, placed, cuts, maxW = MAX_CANVAS_W) {
+  const scale = Math.min(maxW / bin.w, 1);
   const cw = Math.round(bin.w * scale);
   const ch = Math.round(bin.h * scale);
 
@@ -418,12 +418,19 @@ function textColorFor(hex) {
 
 // ── Render results ─────────────────────────────────────────────────────────
 
-function renderResults() {
-  const { results, unplaced } = optimize();
+let _lastResults = null;
 
+function renderResults() {
+  _lastResults = optimize();
+  drawResults(_lastResults);
+}
+
+function drawResults({ results, unplaced }) {
   const emptyState = document.getElementById('empty-state');
   const summaryEl = document.getElementById('summary');
   const canvasesEl = document.getElementById('canvases');
+  // Available canvas width: container minus card borders (2px) and wrapper padding (2×16px)
+  const availW = Math.max(200, canvasesEl.clientWidth - 34);
 
   emptyState.classList.add('hidden');
   canvasesEl.innerHTML = '';
@@ -489,7 +496,7 @@ function renderResults() {
     // Canvas
     const wrapper = document.createElement('div');
     wrapper.className = 'canvas-wrapper';
-    wrapper.appendChild(renderCanvas(bin, placed, cuts));
+    wrapper.appendChild(renderCanvas(bin, placed, cuts, availW));
     card.appendChild(wrapper);
 
     // Legend
@@ -679,6 +686,15 @@ document.getElementById('allow-rotation').addEventListener('change', e => {
 
 // Optimize
 document.getElementById('optimize-btn').addEventListener('click', renderResults);
+
+// Re-draw on resize (orientation change, window resize) without re-optimizing
+let _resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (_lastResults) drawResults(_lastResults);
+  }, 150);
+});
 
 // ── Init ───────────────────────────────────────────────────────────────────
 
