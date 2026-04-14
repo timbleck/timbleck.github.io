@@ -31,10 +31,9 @@ body {
 }
 
 header {
-  position: relative;
-  background: #1f2a22;
+  background-color: var(--italian-green-dark);
   color: var(--italian-white);
-  padding: 16px 24px;
+  padding: 14px 24px;
   display: flex;
   align-items: baseline;
   gap: 12px;
@@ -153,7 +152,6 @@ main {
 .results-list .value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
