@@ -31,16 +31,8 @@ body {
 }
 
 header {
-  background: linear-gradient(
-    to right,
-    var(--italian-green) 0%,
-    var(--italian-green) 33.33%,
-    var(--italian-white) 33.33%,
-    var(--italian-white) 66.66%,
-    var(--italian-red) 66.66%,
-    var(--italian-red) 100%
-  );
-  color: var(--text);
+  background-color: var(--italian-green-dark);
+  color: var(--italian-white);
   padding: 14px 24px;
   display: flex;
   align-items: center;
