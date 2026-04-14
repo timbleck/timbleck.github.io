@@ -32,27 +32,24 @@ body {
 
 header {
   background-color: var(--italian-green-dark);
+  background-image: linear-gradient(
+    to right,
+    var(--italian-green) 0%,
+    var(--italian-green) 33.33%,
+    var(--italian-white) 33.33%,
+    var(--italian-white) 66.66%,
+    var(--italian-red) 66.66%,
+    var(--italian-red) 100%
+  );
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 100% 3px;
   color: var(--italian-white);
   padding: 14px 24px;
   display: flex;
   align-items: baseline;
   gap: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,.15);
-}
-
-header::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background: linear-gradient(
-    to right,
-    var(--italian-green) 0 33.33%,
-    var(--italian-white) 33.33% 66.66%,
-    var(--italian-red) 66.66% 100%
-  );
 }
 
 header h1 {
