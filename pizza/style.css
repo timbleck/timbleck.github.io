@@ -35,25 +35,24 @@ header {
   color: var(--italian-white);
   padding: 14px 24px;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.2);
-  border-bottom: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
 }
 
-header h1 {
-  background: rgba(255, 255, 255, 0.92);
-  padding: 4px 12px;
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px rgba(0,0,0,.15);
-}
-
-.subtitle {
-  background: rgba(255, 255, 255, 0.92);
-  padding: 3px 10px;
-  border-radius: var(--radius);
-  color: var(--text-muted);
-  opacity: 1;
+header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    var(--italian-green) 0 33.33%,
+    var(--italian-white) 33.33% 66.66%,
+    var(--italian-red) 66.66% 100%
+  );
 }
 
 header h1 {
@@ -64,6 +63,7 @@ header h1 {
 
 .subtitle {
   font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 main {
