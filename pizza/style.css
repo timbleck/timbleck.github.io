@@ -160,7 +160,6 @@ main {
 .results-list .value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--accent);
   font-variant-numeric: tabular-nums;
 }
 
