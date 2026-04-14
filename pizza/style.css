@@ -1,15 +1,20 @@
 :root {
-  --bg: #f5f0eb;
-  --surface: #ffffff;
-  --surface-2: #faf7f4;
-  --border: #e0d6cc;
-  --text: #2c2416;
-  --text-muted: #7a6e62;
-  --accent: #c0390f;
-  --accent-hover: #9c2d09;
-  --accent-light: #fdecea;
-  --header-bg: #2c1a0e;
-  --header-text: #f5ede2;
+  --italian-green: #009246;
+  --italian-green-dark: #00733a;
+  --italian-red: #ce2b37;
+  --italian-red-dark: #a8222c;
+  --italian-white: #ffffff;
+
+  --bg: #fdfaf5;
+  --surface: var(--italian-white);
+  --surface-2: #f5f9f3;
+  --border: #d9e6dc;
+  --text: #1b2a1f;
+  --text-muted: #5d7064;
+  --accent: var(--italian-red);
+  --accent-hover: var(--italian-red-dark);
+  --accent-light: #fdecee;
+  --header-text: var(--italian-white);
   --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
   --shadow: 0 2px 8px rgba(0,0,0,.12);
   --radius: 8px;
@@ -26,13 +31,37 @@ body {
 }
 
 header {
-  background: var(--header-bg);
-  color: var(--header-text);
+  background: linear-gradient(
+    to right,
+    var(--italian-green) 0%,
+    var(--italian-green) 33.33%,
+    var(--italian-white) 33.33%,
+    var(--italian-white) 66.66%,
+    var(--italian-red) 66.66%,
+    var(--italian-red) 100%
+  );
+  color: var(--text);
   padding: 14px 24px;
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 4px 12px;
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+
+.subtitle {
+  background: rgba(255, 255, 255, 0.92);
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  opacity: 1;
 }
 
 header h1 {
@@ -43,7 +72,6 @@ header h1 {
 
 .subtitle {
   font-size: 0.85rem;
-  opacity: 0.65;
 }
 
 main {
@@ -65,7 +93,7 @@ main {
 
 .card-header {
   padding: 10px 16px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--italian-green);
   background: var(--surface-2);
 }
 
@@ -74,7 +102,7 @@ main {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: var(--italian-green-dark);
 }
 
 .form-grid {
@@ -151,6 +179,24 @@ main {
   color: var(--text-muted);
   line-height: 1.5;
   padding: 0 4px;
+}
+
+.steps {
+  padding: 12px 16px 12px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.steps li {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  padding-left: 4px;
+}
+
+.steps li::marker {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 @media (max-width: 480px) {
