@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tool-Quiz</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg-dark:   #1a1a2e;
+      --bg-mid:    #16213e;
+      --bg-panel:  #0f3460;
+      --accent:    #e94560;
+      --accent-dk: #b5304a;
+      --text:      #ffffff;
+      --muted:     rgba(255,255,255,0.45);
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* ── SCREENS ───────────────────────────────────────── */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── START SCREEN ──────────────────────────────────── */
+    #start-screen { background: var(--bg-dark); }
+
+    .img-wrapper {
+      flex: 1;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 30px 15px;
+    }
+    .img-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.55);
+    }
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      max-height: 420px;
+      background: var(--bg-mid);
+      border-radius: 12px;
+      border: 2px dashed rgba(255,255,255,0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 20px;
+    }
+    .img-placeholder code {
+      background: rgba(255,255,255,0.08);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .start-footer { padding: 20px 30px 40px; text-align: center; }
+
+    .btn-primary {
+      padding: 16px 64px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-family: inherit;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 22px rgba(233,69,96,0.45);
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      letter-spacing: 0.04em;
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(233,69,96,0.55);
+      background: var(--accent-dk);
+    }
+    .btn-primary:active { transform: translateY(-1px); }
+
+    /* ── QUIZ SCREEN ───────────────────────────────────── */
+    #quiz-screen {
+      align-items: stretch;
+      justify-content: flex-start;
+      background: #08081a;
+    }
+
+    /* Image area: ~70% height */
+    #image-area {
+      position: relative;
+      height: 70vh;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg-mid);
+      flex-shrink: 0;
+    }
+    #quiz-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #img-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* Scene overlay panels */
+    .scene-cover {
+      position: absolute;
+      background: var(--bg-dark);
+      z-index: 10;
+      transition: opacity 0.75s ease;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .scene-cover.revealed {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Question area: ~30% height */
+    #question-area {
+      flex: 1;
+      width: 100%;
+      background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-mid) 100%);
+      border-top: 3px solid var(--accent);
+      padding: 14px 40px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    #progress-track {
+      width: 100%;
+      max-width: 560px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+    }
+    #progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.55s ease;
+      width: 0%;
+    }
+
+    #q-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    #q-text {
+      font-size: clamp(0.92rem, 1.8vw, 1.12rem);
+      text-align: center;
+      font-weight: 500;
+      line-height: 1.45;
+      max-width: 820px;
+    }
+
+    #answers {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 920px;
+    }
+
+    .ans-btn {
+      padding: 9px 22px;
+      font-size: clamp(0.78rem, 1.4vw, 0.93rem);
+      font-family: inherit;
+      border: 2px solid rgba(255,255,255,0.32);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      max-width: 290px;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .ans-btn:hover:not(:disabled) {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.65);
+      transform: translateY(-2px);
+    }
+    .ans-btn.wrong {
+      background: rgba(231,76,60,0.22);
+      border-color: #e74c3c;
+      color: #ff9090;
+    }
+    .ans-btn.correct {
+      background: rgba(46,204,113,0.25);
+      border-color: #2ecc71;
+      color: #a8f5c8;
+    }
+    .ans-btn:disabled { cursor: default; }
+
+    #feedback {
+      font-size: 0.84rem;
+      color: #ff6b6b;
+      min-height: 1.2em;
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* ── END SCREEN ────────────────────────────────────── */
+    #end-screen { background: var(--bg-dark); gap: 18px; }
+
+    #end-title {
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      color: var(--accent);
+      text-align: center;
+    }
+    #end-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .btn-secondary {
+      padding: 12px 42px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      background: transparent;
+      color: white;
+      border: 2px solid rgba(255,255,255,0.36);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.65);
+    }
+    .end-footer { padding: 5px 30px 30px; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ START SCREEN ═══════════ -->
+<div id="start-screen" class="screen active">
+  <div class="img-wrapper">
+    <img id="start-img" src="images/bild1.jpg" alt="Startbild"
+         onerror="this.style.display='none'; document.getElementById('start-ph').style.display='flex'">
+    <div class="img-placeholder" id="start-ph" style="display:none">
+      Startbild hier ablegen:<br>
+      <code>quiz-app/images/bild1.jpg</code>
+    </div>
+  </div>
+  <div class="start-footer">
+    <button class="btn-primary" onclick="startQuiz()">&#9654; Quiz starten</button>
+  </div>
+</div>
+
+<!-- ═══════════ QUIZ SCREEN ═══════════ -->
+<div id="quiz-screen" class="screen">
+  <div id="image-area">
+    <div id="img-fallback">Quizbild: quiz-app/images/bild2.jpg</div>
+    <img id="quiz-img" src="images/bild2.jpg" alt="Quiz-Bild"
+         onload="document.getElementById('img-fallback').style.display='none'"
+         onerror="this.style.display='none'">
+    <!-- .scene-cover Elemente werden per JS eingefügt -->
+  </div>
+
+  <div id="question-area">
+    <div id="progress-track"><div id="progress-fill"></div></div>
+    <p id="q-meta"></p>
+    <p id="q-text"></p>
+    <div id="answers"></div>
+    <p id="feedback"></p>
+  </div>
+</div>
+
+<!-- ═══════════ END SCREEN ═══════════ -->
+<div id="end-screen" class="screen">
+  <h1 id="end-title">Herzlichen Glückwunsch!</h1>
+  <p id="end-sub">Du hast alle Szenen aufgedeckt!</p>
+  <div class="img-wrapper">
+    <img id="end-img" src="images/bild3.jpg" alt="Zukunftsszenario"
+         onerror="this.style.display='none'; document.getElementById('end-ph').style.display='flex'">
+    <div class="img-placeholder" id="end-ph" style="display:none">
+      Zukunftsszenario hier ablegen:<br>
+      <code>quiz-app/images/bild3.jpg</code>
+    </div>
+  </div>
+  <div class="end-footer">
+    <button class="btn-secondary" onclick="restartQuiz()">&#8635; Nochmal spielen</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ════════════════════════════════════════════════════════════════
+//  SZENEN-DEFINITIONEN  (Prozentangaben relativ zur Bildgröße)
+//
+//  Bild 2 besteht aus 6 Szenen:
+//    Zeile 1 (oben):  2 gleich breite Felder  – Szene 1 & 2
+//    Zeile 2 (Mitte): 3 gleich breite Felder  – Szene 3, 4 & 5
+//    Zeile 3 (unten): 1 breites Feld          – Szene 6
+//
+//  Szene 0 (Index) ist beim Start sichtbar; die übrigen 5 werden
+//  durch korrekte Antworten nacheinander aufgedeckt.
+// ════════════════════════════════════════════════════════════════
+const SCENES = [
+  // Zeile 1
+  { left: '0%',     top: '0%',   width: '50%',    height: '38%' }, // 0: Projektstart
+  { left: '50%',    top: '0%',   width: '50%',    height: '38%' }, // 1: Tool-Familie
+  // Zeile 2
+  { left: '0%',     top: '38%',  width: '33.33%', height: '36%' }, // 2: Jira
+  { left: '33.33%', top: '38%',  width: '33.34%', height: '36%' }, // 3: Confluence
+  { left: '66.67%', top: '38%',  width: '33.33%', height: '36%' }, // 4: SharePoint
+  // Zeile 3
+  { left: '0%',     top: '74%',  width: '100%',   height: '26%' }, // 5: Gemeinsam besser
+];
+
+// ════════════════════════════════════════════════════════════════
+//  FRAGEN-POOL
+//  Format: Frage;Richtige Antwort;Falsche Antwort 1, Falsche Antwort 2
+//
+//  Es werden zufällig (SCENES.length - 1 = 5) Fragen ausgewählt.
+//  Pool muss mindestens 5 Fragen enthalten.
+//  Anpassbar hier ODER in der Datei questions.csv (bei Serverstart).
+// ════════════════════════════════════════════════════════════════
+const EMBEDDED_CSV = `Was ist Jira hauptsächlich?;Ein agiles Projektmanagement- und Aufgabenverfolgungstool;Ein Dokumentations-Wiki, Ein E-Mail-Client
+Wofür wird Confluence primär genutzt?;Zum gemeinsamen Dokumentieren und Teilen von Wissen im Team;Zum Verwalten von Projekttasks in Boards, Zum Versenden von Statusberichten
+Welche drei Tools bilden die Starter Familie?;Jira, Confluence und SharePoint;Slack, Teams und Outlook, Trello, Notion und Google Drive
+Was zeigt der Backlog in Jira?;Alle geplanten, noch nicht begonnenen Aufgaben des Projekts;Den abgeschlossenen Teil des letzten Sprints, Den Projektzeitplan mit Meilensteinen
+Welchen Hauptvorteil bietet SharePoint?;Strukturierte Dateiablage und Zusammenarbeit im Team;Automatisches Erstellen von Jira-Aufgaben, Live-Videokonferenzen im Team
+Was ist ein Epic in Jira?;Ein großes Arbeitspaket das in kleinere User Stories unterteilt wird;Ein kritischer Fehler mit höchster Priorität, Eine abgeschlossene und archivierte Aufgabe
+Welchen Vorteil bringt die Kombination von Jira und Confluence?;Transparenz und strukturiertes Arbeiten über alle Projektphasen;Aufgaben werden automatisch erledigt, Externe Kundenzugänge entfallen
+Was dokumentiert man typischerweise in Confluence?;Projektergebnisse, Vorlagen, Entscheidungen und Teamwissen;Offene Bugs und Testfälle in Kanban-Boards, Rechnungen und Vertragsunterlagen
+Welche Aufgabentypen gibt es in Jira?;Anforderung, Epic, Story, Aufgabe, Test, Risiko und Bug;Kapitel, Abschnitt und Absatz, Phase, Meilenstein und Deployment
+Was bedeutet Projektzeit verkürzt durch Tool-Einsatz?;Alle Beteiligten arbeiten effizienter durch klare Strukturen und Transparenz;Meetings werden automatisch protokolliert, Aufgaben werden ohne Team erledigt`;
+
+// ════════════════════════════════════════════════════════════════
+//  APP-ZUSTAND
+// ════════════════════════════════════════════════════════════════
+const NUM_QUESTIONS = SCENES.length - 1;  // 5 (erste Szene ist vorab sichtbar)
+
+let selectedQ    = [];
+let currentQ     = 0;
+let revealedIdx  = 1;  // Nächster zu enthüllender Szenen-Index
+let externalCSV  = null;
+
+// ════════════════════════════════════════════════════════════════
+//  HILFSFUNKTIONEN
+// ════════════════════════════════════════════════════════════════
+function parseCSV(text) {
+  return text.trim().split('\n').filter(l => l.trim()).map(line => {
+    const parts = line.split(';');
+    return {
+      question : parts[0].trim(),
+      correct  : parts[1].trim(),
+      wrong    : parts[2].split(',').map(s => s.trim()).filter(Boolean),
+    };
+  });
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function switchScreen(from, to) {
+  document.getElementById(from).classList.remove('active');
+  document.getElementById(to).classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  SZENEN-OVERLAYS AUFBAUEN
+// ════════════════════════════════════════════════════════════════
+function buildOverlays() {
+  const area = document.getElementById('image-area');
+  area.querySelectorAll('.scene-cover').forEach(el => el.remove());
+
+  SCENES.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'scene-cover';
+    div.id = `scene-${i}`;
+    Object.assign(div.style, {
+      left: s.left, top: s.top, width: s.width, height: s.height,
+    });
+    if (i === 0) div.classList.add('revealed');
+    area.appendChild(div);
+  });
+}
+
+function revealNext() {
+  const el = document.getElementById(`scene-${revealedIdx}`);
+  if (el) el.classList.add('revealed');
+  revealedIdx++;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  FRAGE ANZEIGEN
+// ════════════════════════════════════════════════════════════════
+function updateProgress() {
+  document.getElementById('progress-fill').style.width =
+    (currentQ / NUM_QUESTIONS * 100) + '%';
+  document.getElementById('q-meta').textContent =
+    `Frage ${currentQ + 1} von ${NUM_QUESTIONS}`;
+}
+
+function showQuestion(idx) {
+  const q = selectedQ[idx];
+  document.getElementById('q-text').textContent = q.question;
+  document.getElementById('feedback').textContent = '';
+  updateProgress();
+
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+
+  shuffle([q.correct, ...q.wrong]).forEach(answer => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.textContent = answer;
+    btn.addEventListener('click', () => handleAnswer(btn, answer === q.correct));
+    container.appendChild(btn);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ANTWORT VERARBEITEN
+// ════════════════════════════════════════════════════════════════
+function handleAnswer(btn, isCorrect) {
+  if (isCorrect) {
+    btn.classList.add('correct');
+    document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
+
+    setTimeout(() => {
+      revealNext();
+      currentQ++;
+      if (currentQ < NUM_QUESTIONS) {
+        showQuestion(currentQ);
+      } else {
+        document.getElementById('progress-fill').style.width = '100%';
+        document.getElementById('q-meta').textContent = 'Alle Fragen beantwortet!';
+        setTimeout(() => switchScreen('quiz-screen', 'end-screen'), 900);
+      }
+    }, 650);
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    document.getElementById('feedback').textContent =
+      'Das war leider falsch. Versuch es bitte noch mal.';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  QUIZ STARTEN / NEU STARTEN
+// ════════════════════════════════════════════════════════════════
+function startQuiz() {
+  const csvText = externalCSV || EMBEDDED_CSV;
+  const pool    = parseCSV(csvText);
+  selectedQ     = shuffle(pool).slice(0, NUM_QUESTIONS);
+  currentQ      = 0;
+  revealedIdx   = 1;
+
+  buildOverlays();
+  switchScreen('start-screen', 'quiz-screen');
+  showQuestion(0);
+}
+
+function restartQuiz() {
+  switchScreen('end-screen', 'start-screen');
+}
+
+// ════════════════════════════════════════════════════════════════
+//  CSV-DATEI LADEN (nur bei Betrieb über lokalen Server)
+// ════════════════════════════════════════════════════════════════
+if (location.protocol !== 'file:') {
+  fetch('questions.csv')
+    .then(r => r.ok ? r.text() : Promise.reject())
+    .then(text => { externalCSV = text; })
+    .catch(() => { /* Fallback auf EMBEDDED_CSV */ });
+}
+</script>
+</body>
+</html>
