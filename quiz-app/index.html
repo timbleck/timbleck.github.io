@@ -114,17 +114,16 @@
       align-items: stretch;
       justify-content: flex-start;
       background: #08081a;
+      overflow-y: auto;   /* scrollbar wenn Bilder+Fragen > Viewport */
     }
 
     /* ── QUIZ-BILDBEREICH: CSS-Grid aus 6 Einzelbildern ─── */
     #image-area {
-      flex: 1;
-      min-height: 0;
+      width: 100%;
+      flex-shrink: 0;           /* nicht stauchen – Höhe kommt von den Bildern */
       display: grid;
-      /*  6 gleichbreite Spalten – LCM von 2 und 3               */
       grid-template-columns: repeat(6, 1fr);
-      /*  Zeile 1 + 2 gleich hoch, Zeile 3 (Banner) etwas kürzer */
-      grid-template-rows: 1fr 1fr 0.65fr;
+      grid-template-rows: auto auto auto;  /* jede Zeile = natürliche Bildhöhe */
       background: var(--bg-dark);
     }
 
@@ -141,10 +140,10 @@
       overflow: hidden;
       background: var(--bg-mid);
     }
+    /* Bilder auf volle Zellenbreite, Höhe ergibt sich aus dem Seitenverhältnis */
     .scene-cell img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
+      height: auto;
       display: block;
     }
 
@@ -161,9 +160,10 @@
       pointer-events: none;
     }
 
-    /* Question area: ~30% height */
+    /* Fragebereich: feste Mindesthöhe, kein flex-grow (konkurriert nicht mit Bildbereich) */
     #question-area {
-      flex: 1;
+      flex-shrink: 0;
+      min-height: 220px;
       width: 100%;
       background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-mid) 100%);
       border-top: 3px solid var(--accent);
