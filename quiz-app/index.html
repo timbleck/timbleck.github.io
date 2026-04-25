@@ -13,6 +13,7 @@
       --bg-panel:  #0f3460;
       --accent:    #e94560;
       --accent-dk: #b5304a;
+      --turquoise: #40e0d0;
       --text:      #ffffff;
       --muted:     rgba(255,255,255,0.45);
     }
@@ -88,6 +89,23 @@
 
     .start-footer { padding: 20px 30px 40px; text-align: center; }
 
+    .start-headline {
+      font-size: clamp(2rem, 3.6vw, 2.6rem);
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 22px;
+      position: relative;
+      top: -40px;
+      color: var(--accent);
+      animation: headlinePulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes headlinePulse {
+      0%, 100% { text-shadow: 0 0 4px rgba(233,69,96,0.25); }
+      50%      { text-shadow: 0 0 22px rgba(233,69,96,0.85),
+                              0 0 6px  rgba(233,69,96,0.55); }
+    }
+
     .btn-primary {
       padding: 16px 64px;
       font-size: 1.3rem;
@@ -117,42 +135,32 @@
       overflow: hidden;   /* kein Scrollen – alles passt in den Viewport */
     }
 
-    /* ── QUIZ-BILDBEREICH: CSS-Grid aus 6 Einzelbildern ─── */
+    /* ── QUIZ-BILDBEREICH ─────────────────────────────────────────────── */
     #image-area {
-      flex: 1;            /* nimmt allen Platz oberhalb des Fragebereichs */
-      min-height: 0;      /* erlaubt Schrumpfen im Flex-Container          */
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      /*  Zeilen proportional zur Bildaufteilung:
-          Zeile 1 + 2 gleich hoch, Zeile 3 (Banner) etwas kürzer.
-          Wert für Zeile 3 anpassen falls der Banner höher/niedriger ist. */
-      grid-template-rows: 1fr 1fr 0.7fr;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: var(--bg-dark);
-    }
-
-    /* Grid-Platzierung der 6 Zellen */
-    #cell-0 { grid-column: 1 / 4; grid-row: 1; } /* Szene 1 – links  oben  */
-    #cell-1 { grid-column: 4 / 7; grid-row: 1; } /* Szene 2 – rechts oben  */
-    #cell-2 { grid-column: 1 / 3; grid-row: 2; } /* Szene 3 – links  Mitte */
-    #cell-3 { grid-column: 3 / 5; grid-row: 2; } /* Szene 4 – Mitte        */
-    #cell-4 { grid-column: 5 / 7; grid-row: 2; } /* Szene 5 – rechts Mitte */
-    #cell-5 { grid-column: 1 / 7; grid-row: 3; } /* Szene 6 – Banner       */
-
-    .scene-cell {
-      position: relative;
       overflow: hidden;
-      background: var(--bg-dark);
-    }
-    /* Bilder füllen die Zelle vollständig – alle Zellen einer Zeile
-       gleich hoch, kein Leerraum am Rand                             */
-    .scene-cell img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
 
-    /* Abdeckung: startet opak, wird bei Aufdecken transparent */
+    /* Bühne erbt die Höhe vom Bildbereich; Bild definiert die Breite (Naturverhältnis) */
+    .comic-stage {
+      position: relative;
+      height: 100%;
+      line-height: 0;
+    }
+
+    .comic-stage img {
+      display: block;
+      height: 100%;
+      width: auto;
+      max-width: none;
+    }
+
+    /* Abdeckung: ganzflächiges Overlay, per clip-path auf eine Szene begrenzt */
     .scene-cover {
       position: absolute;
       inset: 0;
@@ -165,13 +173,25 @@
       pointer-events: none;
     }
 
+    /* ── CLIP-MASKEN PRO SZENE ─────────────────────────────────────────
+       Jede Szene hat ihre eigene Variable mit dem clip-path-Polygon.
+       Werte sind Prozent relativ zum Comic — bei Bedarf an die
+       Panel-Grenzen in bild2.png anpassen. */
+
+    #cover-0 { clip-path: polygon(  0%   0%,  49.55%   0%,  49.55%  34%,   0%  34%); }
+    #cover-1 { clip-path: polygon( 49.55%   0%, 101%   0%, 101%  34%,  49.55%  34%); }
+    #cover-2 { clip-path: polygon(  0%  34%, 36% 34%, 36% 75%,   0%  75%); }
+    #cover-3 { clip-path: polygon(36% 34%, 65% 34%, 65% 75%, 36% 75%); }
+    #cover-4 { clip-path: polygon(65% 34%, 101%   34%, 101%  75%, 65% 75%); }
+    #cover-5 { clip-path: polygon(  0%  70%, 101%  70%, 101% 100%,   0% 100%); }
+
     /* Fragebereich: fixer Anteil am Viewport – kein Scrollen nötig */
     #question-area {
       flex-shrink: 0;
       height: 28vh;
       width: 100%;
       background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-mid) 100%);
-      border-top: 3px solid var(--accent);
+      border-top: 3px solid var(--turquoise);
       padding: 14px 40px 16px;
       display: flex;
       flex-direction: column;
@@ -262,13 +282,17 @@
 
     #end-title {
       font-size: clamp(1.5rem, 3vw, 2.1rem);
-      color: var(--accent);
+      color: var(--turquoise);
       text-align: center;
+      position: relative;
+      top: 60px;
     }
     #end-sub {
       font-size: 1rem;
       color: var(--muted);
       text-align: center;
+      position: relative;
+      top: 60px;
     }
 
     .btn-secondary {
@@ -303,7 +327,7 @@
     </div>
   </div>
   <div class="start-footer">
-    <p style="font-size:1.2rem; margin-bottom:18px; color:var(--text);">Helfe Hase Hoppel beim Projektstart.</p>
+    <p class="start-headline">Helfe Hase Hoppel beim Projektstart!</p>
     <button class="btn-primary" onclick="startQuiz()">&#9654; Quiz starten</button>
   </div>
 </div>
@@ -311,37 +335,20 @@
 <!-- ═══════════ QUIZ SCREEN ═══════════ -->
 <div id="quiz-screen" class="screen">
   <div id="image-area">
-
-    <!-- Zeile 1: Szene 1 (links) + Szene 2 (rechts) -->
-    <div class="scene-cell" id="cell-0">
-      <img src="images/szene1.jpg" alt="Szene 1">
+    <div class="comic-stage" id="comic-stage">
+      <img id="comic-img" src="images/bild2.png" alt="Comic"
+           onerror="document.getElementById('comic-stage').style.display='none'; document.getElementById('comic-ph').style.display='flex'">
       <div class="scene-cover" id="cover-0"></div>
-    </div>
-    <div class="scene-cell" id="cell-1">
-      <img src="images/szene2.jpg" alt="Szene 2">
       <div class="scene-cover" id="cover-1"></div>
-    </div>
-
-    <!-- Zeile 2: Szene 3 (links) + Szene 4 (Mitte) + Szene 5 (rechts) -->
-    <div class="scene-cell" id="cell-2">
-      <img src="images/szene3.jpg" alt="Szene 3">
       <div class="scene-cover" id="cover-2"></div>
-    </div>
-    <div class="scene-cell" id="cell-3">
-      <img src="images/szene4.jpg" alt="Szene 4">
       <div class="scene-cover" id="cover-3"></div>
-    </div>
-    <div class="scene-cell" id="cell-4">
-      <img src="images/szene5.jpg" alt="Szene 5">
       <div class="scene-cover" id="cover-4"></div>
-    </div>
-
-    <!-- Zeile 3: Szene 6 – Banner über volle Breite -->
-    <div class="scene-cell" id="cell-5">
-      <img src="images/szene6.jpg" alt="Szene 6">
       <div class="scene-cover" id="cover-5"></div>
     </div>
-
+    <div class="img-placeholder" id="comic-ph" style="display:none">
+      Comic-Gesamtbild hier ablegen:<br>
+      <code>quiz-app/images/bild2.png</code>
+    </div>
   </div>
 
   <div id="question-area">
@@ -356,7 +363,7 @@
 <!-- ═══════════ END SCREEN ═══════════ -->
 <div id="end-screen" class="screen">
   <h1 id="end-title">Herzlichen Glückwunsch!</h1>
-  <p id="end-sub">Du hast alle Szenen aufgedeckt!</p>
+  <p id="end-sub">Du hast Hase Hoppel zu einem erfolgreichen Projektstart verholfen!</p>
   <div class="img-wrapper">
     <img id="end-img" src="images/bild3.jpg" alt="Zukunftsszenario"
          onerror="this.style.display='none'; document.getElementById('end-ph').style.display='flex'">
@@ -482,7 +489,7 @@ function showQuestion(idx) {
   const container = document.getElementById('answers');
   container.innerHTML = '';
 
-  shuffle([q.correct, ...q.wrong]).forEach(answer => {
+  shuffle([q.correct, ...shuffle(q.wrong).slice(0, 2)]).forEach(answer => {
     const btn = document.createElement('button');
     btn.className = 'ans-btn';
     btn.textContent = answer;
