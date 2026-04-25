@@ -130,7 +130,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
     }
     #img-fallback {
@@ -349,15 +349,15 @@
 //  durch korrekte Antworten nacheinander aufgedeckt.
 // ════════════════════════════════════════════════════════════════
 const SCENES = [
-  // Zeile 1
-  { left: '0%',     top: '0%',   width: '50%',    height: '38%' }, // 0: Projektstart
-  { left: '50%',    top: '0%',   width: '50%',    height: '38%' }, // 1: Tool-Familie
-  // Zeile 2
-  { left: '0%',     top: '38%',  width: '33.33%', height: '36%' }, // 2: Jira
-  { left: '33.33%', top: '38%',  width: '33.34%', height: '36%' }, // 3: Confluence
-  { left: '66.67%', top: '38%',  width: '33.33%', height: '36%' }, // 4: SharePoint
-  // Zeile 3
-  { left: '0%',     top: '74%',  width: '100%',   height: '26%' }, // 5: Gemeinsam besser
+  // Zeile 1 (je 50 % Breite, 38 % Höhe des Bildes)
+  { left:  0,     top:  0,  width:  50,    height: 38 }, // 0: Projektstart
+  { left: 50,     top:  0,  width:  50,    height: 38 }, // 1: Tool-Familie
+  // Zeile 2 (je 33,33 % Breite, 36 % Höhe)
+  { left:  0,     top: 38,  width:  33.33, height: 36 }, // 2: Jira
+  { left: 33.33,  top: 38,  width:  33.34, height: 36 }, // 3: Confluence
+  { left: 66.67,  top: 38,  width:  33.33, height: 36 }, // 4: SharePoint
+  // Zeile 3 (100 % Breite, 26 % Höhe)
+  { left:  0,     top: 74,  width: 100,    height: 26 }, // 5: Gemeinsam besser
 ];
 
 // ════════════════════════════════════════════════════════════════
@@ -419,19 +419,59 @@ function switchScreen(from, to) {
 
 // ════════════════════════════════════════════════════════════════
 //  SZENEN-OVERLAYS AUFBAUEN
+//
+//  Das Bild wird mit object-fit:contain angezeigt, d. h. es wird
+//  vollständig ohne Beschneidung eingepasst. Die tatsächliche
+//  Render-Position und -Größe wird berechnet und die Overlays
+//  exakt darauf ausgerichtet.
 // ════════════════════════════════════════════════════════════════
+
+/** Gibt Position und Größe des tatsächlich gerenderten Bildes zurück. */
+function getRenderedImageRect() {
+  const img  = document.getElementById('quiz-img');
+  const area = document.getElementById('image-area');
+  if (!img.naturalWidth) return null;
+
+  const cW = area.clientWidth;
+  const cH = area.clientHeight;
+  const iR = img.naturalWidth / img.naturalHeight;
+  const cR = cW / cH;
+
+  let w, h, x, y;
+  if (iR > cR) {
+    // Bild breiter als Container → Letterbox oben/unten
+    w = cW;
+    h = cW / iR;
+    x = 0;
+    y = (cH - h) / 2;
+  } else {
+    // Bild schmaler als Container → Pillarbox links/rechts
+    h = cH;
+    w = cH * iR;
+    x = (cW - w) / 2;
+    y = 0;
+  }
+  return { x, y, w, h };
+}
+
 function buildOverlays() {
   const area = document.getElementById('image-area');
   area.querySelectorAll('.scene-cover').forEach(el => el.remove());
+
+  const r = getRenderedImageRect();
+  if (!r) return;
 
   SCENES.forEach((s, i) => {
     const div = document.createElement('div');
     div.className = 'scene-cover';
     div.id = `scene-${i}`;
     Object.assign(div.style, {
-      left: s.left, top: s.top, width: s.width, height: s.height,
+      left:   (r.x + s.left   / 100 * r.w) + 'px',
+      top:    (r.y + s.top    / 100 * r.h) + 'px',
+      width:  (s.width  / 100 * r.w) + 'px',
+      height: (s.height / 100 * r.h) + 'px',
     });
-    if (i === 0) div.classList.add('revealed');
+    if (i < revealedIdx) div.classList.add('revealed');
     area.appendChild(div);
   });
 }
@@ -507,10 +547,29 @@ function startQuiz() {
   currentQ      = 0;
   revealedIdx   = 1;
 
-  buildOverlays();
   switchScreen('start-screen', 'quiz-screen');
+
+  // Overlays erst aufbauen wenn das Bild geladen ist
+  const img = document.getElementById('quiz-img');
+  if (img.complete && img.naturalWidth) {
+    buildOverlays();
+  } else {
+    img.onload = buildOverlays;
+  }
+
   showQuestion(0);
 }
+
+// Overlays bei Fenster-Größenänderung neu berechnen
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (document.getElementById('quiz-screen').classList.contains('active')) {
+      buildOverlays();
+    }
+  }, 100);
+});
 
 function restartQuiz() {
   switchScreen('end-screen', 'start-screen');
