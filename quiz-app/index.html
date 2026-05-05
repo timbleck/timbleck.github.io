@@ -126,6 +126,26 @@
       background: #0d47a1;
     }
     .btn-primary:active { transform: translateY(-1px); }
+    .btn-primary:disabled {
+      cursor: default;
+      opacity: 0.55;
+      transform: none;
+      box-shadow: 0 4px 12px rgba(21,101,192,0.25);
+    }
+    .btn-primary:disabled:hover {
+      transform: none;
+      background: #1565c0;
+      box-shadow: 0 4px 12px rgba(21,101,192,0.25);
+    }
+
+    #start-error {
+      color: #ff6b6b;
+      font-size: 0.92rem;
+      margin-top: 14px;
+      min-height: 1.2em;
+      max-width: 540px;
+      text-align: center;
+    }
 
     /* ── QUIZ SCREEN ───────────────────────────────────── */
     #quiz-screen {
@@ -328,7 +348,8 @@
   </div>
   <div class="start-footer">
     <p class="start-headline">Helfe Hase Hoppel beim Projektstart!</p>
-    <button class="btn-primary" onclick="startQuiz()">&#9654; Quiz starten</button>
+    <button id="start-btn" class="btn-primary" onclick="startQuiz()" disabled>Lade Fragen…</button>
+    <p id="start-error"></p>
   </div>
 </div>
 
@@ -397,30 +418,21 @@ const NUM_QUESTIONS = NUM_SCENES - 1;  // 5 Fragen
 
 // ════════════════════════════════════════════════════════════════
 //  FRAGEN-POOL
-//  Format: Frage;Richtige Antwort;Falsche Antwort 1, Falsche Antwort 2
+//  Format pro Zeile in questions.csv:
+//    Frage;Richtige Antwort;Falsche Antwort 1, Falsche Antwort 2
 //
 //  Es werden zufällig (NUM_QUESTIONS = 5) Fragen ausgewählt.
-//  Pool muss mindestens 5 Fragen enthalten.
-//  Anpassbar hier ODER in der Datei questions.csv (bei Serverstart).
+//  Die CSV-Datei muss mindestens 5 Fragen enthalten und wird beim
+//  Seitenstart per fetch() geladen.
 // ════════════════════════════════════════════════════════════════
-const EMBEDDED_CSV = `Was ist Jira hauptsächlich?;Ein agiles Projektmanagement- und Aufgabenverfolgungstool;Ein Dokumentations-Wiki, Ein E-Mail-Client
-Wofür wird Confluence primär genutzt?;Zum gemeinsamen Dokumentieren und Teilen von Wissen im Team;Zum Verwalten von Projekttasks in Boards, Zum Versenden von Statusberichten
-Welche drei Tools bilden die Starter Familie?;Jira, Confluence und SharePoint;Slack, Teams und Outlook, Trello, Notion und Google Drive
-Was zeigt der Backlog in Jira?;Alle geplanten, noch nicht begonnenen Aufgaben des Projekts;Den abgeschlossenen Teil des letzten Sprints, Den Projektzeitplan mit Meilensteinen
-Welchen Hauptvorteil bietet SharePoint?;Strukturierte Dateiablage und Zusammenarbeit im Team;Automatisches Erstellen von Jira-Aufgaben, Live-Videokonferenzen im Team
-Was ist ein Epic in Jira?;Ein großes Arbeitspaket das in kleinere User Stories unterteilt wird;Ein kritischer Fehler mit höchster Priorität, Eine abgeschlossene und archivierte Aufgabe
-Welchen Vorteil bringt die Kombination von Jira und Confluence?;Transparenz und strukturiertes Arbeiten über alle Projektphasen;Aufgaben werden automatisch erledigt, Externe Kundenzugänge entfallen
-Was dokumentiert man typischerweise in Confluence?;Projektergebnisse, Vorlagen, Entscheidungen und Teamwissen;Offene Bugs und Testfälle in Kanban-Boards, Rechnungen und Vertragsunterlagen
-Welche Aufgabentypen gibt es in Jira?;Anforderung, Epic, Story, Aufgabe, Test, Risiko und Bug;Kapitel, Abschnitt und Absatz, Phase, Meilenstein und Deployment
-Was bedeutet Projektzeit verkürzt durch Tool-Einsatz?;Alle Beteiligten arbeiten effizienter durch klare Strukturen und Transparenz;Meetings werden automatisch protokolliert, Aufgaben werden ohne Team erledigt`;
 
 // ════════════════════════════════════════════════════════════════
 //  APP-ZUSTAND
 // ════════════════════════════════════════════════════════════════
-let selectedQ   = [];
-let currentQ    = 0;
-let revealedIdx = 1;  // cover-0 ist vorab aufgedeckt → nächste ist cover-1
-let externalCSV = null;
+let selectedQ    = [];
+let currentQ     = 0;
+let revealedIdx  = 1;  // cover-0 ist vorab aufgedeckt → nächste ist cover-1
+let questionPool = null;
 
 // ════════════════════════════════════════════════════════════════
 //  HILFSFUNKTIONEN
@@ -529,11 +541,11 @@ function handleAnswer(btn, isCorrect) {
 //  QUIZ STARTEN / NEU STARTEN
 // ════════════════════════════════════════════════════════════════
 function startQuiz() {
-  const csvText = externalCSV || EMBEDDED_CSV;
-  const pool    = parseCSV(csvText);
-  selectedQ     = shuffle(pool).slice(0, NUM_QUESTIONS);
-  currentQ      = 0;
-  revealedIdx   = 1;
+  if (!questionPool || questionPool.length < NUM_QUESTIONS) return;
+
+  selectedQ   = shuffle(questionPool).slice(0, NUM_QUESTIONS);
+  currentQ    = 0;
+  revealedIdx = 1;
 
   resetCovers();
   switchScreen('start-screen', 'quiz-screen');
@@ -545,14 +557,32 @@ function restartQuiz() {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  CSV-DATEI LADEN (nur bei Betrieb über lokalen Server)
+//  FRAGEN AUS questions.csv LADEN
+//
+//  Der Start-Button bleibt deaktiviert, bis die Datei erfolgreich
+//  geladen und geparst wurde. Schlägt der Ladevorgang fehl (z.B. bei
+//  Aufruf über file://), wird eine Fehlermeldung angezeigt.
 // ════════════════════════════════════════════════════════════════
-if (location.protocol !== 'file:') {
-  fetch('questions.csv')
-    .then(r => r.ok ? r.text() : Promise.reject())
-    .then(text => { externalCSV = text; })
-    .catch(() => { /* Fallback auf EMBEDDED_CSV */ });
-}
+fetch('questions.csv')
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.text();
+  })
+  .then(text => {
+    const pool = parseCSV(text);
+    if (pool.length < NUM_QUESTIONS) {
+      throw new Error(`questions.csv enthält nur ${pool.length} Fragen, benötigt werden ${NUM_QUESTIONS}.`);
+    }
+    questionPool = pool;
+    const btn = document.getElementById('start-btn');
+    btn.disabled = false;
+    btn.innerHTML = '&#9654; Quiz starten';
+  })
+  .catch(err => {
+    document.getElementById('start-error').textContent =
+      'Fragen konnten nicht geladen werden. Bitte die Seite über einen lokalen HTTP-Server öffnen.';
+    console.error('questions.csv:', err);
+  });
 </script>
 </body>
 </html>

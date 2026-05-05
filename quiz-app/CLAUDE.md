@@ -8,7 +8,7 @@ Eine JavaScript-Anwendung für ein Quiz, das den Spieler durch Beantwortung von 
 
 ## Entwicklung
 
-Die App besteht aus einer einzigen Datei (`index.html`) — kein Build-Tool, kein npm, keine externe Abhängigkeit. Zum Entwickeln reicht ein lokaler HTTP-Server:
+Die App besteht aus `index.html` plus `questions.csv` — kein Build-Tool, kein npm, keine externe Abhängigkeit. Da die Fragen per `fetch()` geladen werden, ist ein lokaler HTTP-Server erforderlich:
 
 ```bash
 python3 -m http.server 8080
@@ -16,7 +16,7 @@ python3 -m http.server 8080
 npx serve .
 ```
 
-Ohne HTTP-Server (direktes Öffnen als `file://`) funktioniert die App ebenfalls — sie fällt dann automatisch auf die eingebetteten Fragen zurück (`EMBEDDED_CSV`).
+Direktes Öffnen als `file://` funktioniert nicht (Browser blockieren `fetch()` auf `file://`). Schlägt der Ladevorgang fehl, bleibt der Start-Button deaktiviert und es erscheint eine Fehlermeldung.
 
 ## Architektur
 
@@ -42,8 +42,9 @@ Jede Zelle hat ein darüber liegendes `.scene-cover`-Div (dunkle Abdeckung). Kor
 ```
 Frage;Richtige Antwort;Falsche Antwort 1, Falsche Antwort 2
 ```
-- `questions.csv` wird via `fetch()` geladen, wenn die Seite über HTTP läuft.
-- `EMBEDDED_CSV` (hardcodiert im Skript) dient als Fallback.
+- `questions.csv` wird beim Seitenstart per `fetch()` geladen — einzige Quelle der Fragen.
+- Der Start-Button ist solange deaktiviert (`Lade Fragen…`), bis die Datei erfolgreich geladen ist.
+- Pool muss mindestens 5 Fragen enthalten, sonst wird der Quiz-Start verweigert.
 - Aus dem Pool werden zufällig 5 Fragen ausgewählt; Antwortreihenfolge wird ebenfalls zufällig gemischt.
 
 **Falsche Antworten** pro Frage: mindestens 2, kommagetrennt im dritten CSV-Feld. Die Antwortbuttons (`#answers`) werden bei jeder Frage neu gerendert.
