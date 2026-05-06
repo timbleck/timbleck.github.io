@@ -4,6 +4,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tool-Quiz</title>
+  <script id="questions-data" type="application/json">
+  [
+    {
+      "question": "Was ist Jira hauptsächlich?",
+      "correct": "Ein agiles Projektmanagement- und Aufgabenverfolgungstool",
+      "wrong": ["Ein Dokumentations-Wiki", "Ein E-Mail-Client"]
+    },
+    {
+      "question": "Wofür wird Confluence primär genutzt?",
+      "correct": "Zum gemeinsamen Dokumentieren und Teilen von Wissen im Team",
+      "wrong": ["Zum Verwalten von Projekttasks in Boards", "Zum Versenden von Statusberichten"]
+    },
+    {
+      "question": "Welche drei Tools bilden die Starter Familie?",
+      "correct": "Jira, Confluence und SharePoint",
+      "wrong": ["Slack, Teams und Outlook", "Trello, Notion und Google Drive"]
+    },
+    {
+      "question": "Was zeigt der Backlog in Jira?",
+      "correct": "Alle geplanten, noch nicht begonnenen Aufgaben des Projekts",
+      "wrong": ["Den abgeschlossenen Teil des letzten Sprints", "Den Projektzeitplan mit Meilensteinen"]
+    },
+    {
+      "question": "Welchen Hauptvorteil bietet SharePoint?",
+      "correct": "Strukturierte Dateiablage und Zusammenarbeit im Team",
+      "wrong": ["Automatisches Erstellen von Jira-Aufgaben", "Live-Videokonferenzen im Team"]
+    },
+    {
+      "question": "Was ist ein Epic in Jira?",
+      "correct": "Ein großes Arbeitspaket das in kleinere User Stories unterteilt wird",
+      "wrong": ["Ein kritischer Fehler mit höchster Priorität", "Eine abgeschlossene und archivierte Aufgabe"]
+    },
+    {
+      "question": "Welchen Vorteil bringt die Kombination von Jira und Confluence?",
+      "correct": "Transparenz und strukturiertes Arbeiten über alle Projektphasen",
+      "wrong": ["Aufgaben werden automatisch erledigt", "Externe Kundenzugänge entfallen"]
+    },
+    {
+      "question": "Was dokumentiert man typischerweise in Confluence?",
+      "correct": "Projektergebnisse, Vorlagen, Entscheidungen und Teamwissen",
+      "wrong": ["Offene Bugs und Testfälle in Kanban-Boards", "Rechnungen und Vertragsunterlagen"]
+    },
+    {
+      "question": "Welche Aufgabentypen gibt es in Jira?",
+      "correct": "Anforderung, Epic, Story, Aufgabe, Test, Risiko und Bug",
+      "wrong": ["Kapitel, Abschnitt und Absatz", "Phase, Meilenstein und Deployment"]
+    },
+    {
+      "question": "Was bedeutet Projektzeit verkürzt durch Tool-Einsatz?",
+      "correct": "Alle Beteiligten arbeiten effizienter durch klare Strukturen und Transparenz",
+      "wrong": ["Meetings werden automatisch protokolliert", "Aufgaben werden ohne Team erledigt"]
+    }
+  ]
+  </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -87,7 +141,12 @@
       font-family: monospace;
     }
 
-    .start-footer { padding: 20px 30px 40px; text-align: center; }
+    .start-footer {
+      padding: 20px 30px 40px;
+      text-align: center;
+      position: relative;
+      top: -60px;
+    }
 
     .start-headline {
       font-size: clamp(2rem, 3.6vw, 2.6rem);
@@ -155,55 +214,41 @@
       overflow: hidden;   /* kein Scrollen – alles passt in den Viewport */
     }
 
-    /* ── QUIZ-BILDBEREICH ─────────────────────────────────────────────── */
+    /* ── QUIZ-BILDBEREICH ─────────────────────────────────────────────────
+       Pro Szene ein eigener Container, gestapelt im #image-area.
+       Aktive Szene per .active sichtbar; alle Bilder sind permanent im DOM
+       und damit vorab dekodiert — kein src-Swap, keine Decoding-Races. */
     #image-area {
+      position: relative;
       flex: 1;
       min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: var(--bg-dark);
       overflow: hidden;
     }
 
-    /* Bühne erbt die Höhe vom Bildbereich; Bild definiert die Breite (Naturverhältnis) */
-    .comic-stage {
-      position: relative;
-      height: 100%;
-      line-height: 0;
-    }
-
-    .comic-stage img {
-      display: block;
-      height: 100%;
-      width: auto;
-      max-width: none;
-    }
-
-    /* Abdeckung: ganzflächiges Overlay, per clip-path auf eine Szene begrenzt */
-    .scene-cover {
+    .scene {
       position: absolute;
       inset: 0;
-      background: var(--bg-dark);
-      z-index: 2;
-      transition: opacity 0.75s ease;
-    }
-    .scene-cover.revealed {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.4s ease;
     }
-
-    /* ── CLIP-MASKEN PRO SZENE ─────────────────────────────────────────
-       Jede Szene hat ihre eigene Variable mit dem clip-path-Polygon.
-       Werte sind Prozent relativ zum Comic — bei Bedarf an die
-       Panel-Grenzen in bild2.png anpassen. */
-
-    #cover-0 { clip-path: polygon(  0%   0%,  49.55%   0%,  49.55%  34%,   0%  34%); }
-    #cover-1 { clip-path: polygon( 49.55%   0%, 101%   0%, 101%  34%,  49.55%  34%); }
-    #cover-2 { clip-path: polygon(  0%  34%, 36% 34%, 36% 75%,   0%  75%); }
-    #cover-3 { clip-path: polygon(36% 34%, 65% 34%, 65% 75%, 36% 75%); }
-    #cover-4 { clip-path: polygon(65% 34%, 101%   34%, 101%  75%, 65% 75%); }
-    #cover-5 { clip-path: polygon(  0%  70%, 101%  70%, 101% 100%,   0% 100%); }
+    .scene.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .scene img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
 
     /* Fragebereich: fixer Anteil am Viewport – kein Scrollen nötig */
     #question-area {
@@ -298,22 +343,30 @@
     }
 
     /* ── END SCREEN ────────────────────────────────────── */
-    #end-screen { background: var(--bg-dark); gap: 18px; }
+    #end-screen {
+      background: var(--bg-dark);
+      justify-content: center;
+      gap: 14px;
+      padding: 24px 20px;
+    }
 
     #end-title {
       font-size: clamp(1.5rem, 3vw, 2.1rem);
       color: var(--turquoise);
       text-align: center;
-      position: relative;
-      top: 60px;
     }
     #end-sub {
       font-size: 1rem;
       color: var(--muted);
       text-align: center;
-      position: relative;
-      top: 60px;
     }
+
+    /* Endbildschirm-Bild: kein flex-grow, max. 60% Viewport-Höhe */
+    #end-screen .img-wrapper {
+      flex: 0 1 auto;
+      padding: 0;
+    }
+    #end-img { max-height: 60vh; }
 
     .btn-secondary {
       padding: 12px 42px;
@@ -331,7 +384,24 @@
       background: rgba(255,255,255,0.1);
       border-color: rgba(255,255,255,0.65);
     }
-    .end-footer { padding: 5px 30px 30px; }
+    .end-footer {
+      padding: 0;
+      margin-top: 30px;
+    }
+
+    /* ── KI-HINWEIS ────────────────────────────────────── */
+    .ai-notice {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 12px;
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-style: italic;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -348,28 +418,21 @@
   </div>
   <div class="start-footer">
     <p class="start-headline">Helfe Hase Hoppel beim Projektstart!</p>
-    <button id="start-btn" class="btn-primary" onclick="startQuiz()" disabled>Lade Fragen…</button>
+    <button id="start-btn" class="btn-primary" onclick="startQuiz()">&#9654; Quiz starten</button>
     <p id="start-error"></p>
   </div>
+  <p class="ai-notice">Bilder und Quizfragen wurden mit Hilfe von KI erstellt.</p>
 </div>
 
 <!-- ═══════════ QUIZ SCREEN ═══════════ -->
 <div id="quiz-screen" class="screen">
   <div id="image-area">
-    <div class="comic-stage" id="comic-stage">
-      <img id="comic-img" src="images/bild2.png" alt="Comic"
-           onerror="document.getElementById('comic-stage').style.display='none'; document.getElementById('comic-ph').style.display='flex'">
-      <div class="scene-cover" id="cover-0"></div>
-      <div class="scene-cover" id="cover-1"></div>
-      <div class="scene-cover" id="cover-2"></div>
-      <div class="scene-cover" id="cover-3"></div>
-      <div class="scene-cover" id="cover-4"></div>
-      <div class="scene-cover" id="cover-5"></div>
-    </div>
-    <div class="img-placeholder" id="comic-ph" style="display:none">
-      Comic-Gesamtbild hier ablegen:<br>
-      <code>quiz-app/images/bild2.png</code>
-    </div>
+    <div class="scene active"><img src="images/bild1.jpg"  alt="Bild 1"></div>
+    <div class="scene">       <img src="images/szene2.jpg" alt="Bild 2"></div>
+    <div class="scene">       <img src="images/szene3.jpg" alt="Bild 3"></div>
+    <div class="scene">       <img src="images/szene4.jpg" alt="Bild 4"></div>
+    <div class="scene">       <img src="images/szene5.jpg" alt="Bild 5"></div>
+    <div class="scene">       <img src="images/szene6.jpg" alt="Bild 6"></div>
   </div>
 
   <div id="question-area">
@@ -386,11 +449,11 @@
   <h1 id="end-title">Herzlichen Glückwunsch!</h1>
   <p id="end-sub">Du hast Hase Hoppel zu einem erfolgreichen Projektstart verholfen!</p>
   <div class="img-wrapper">
-    <img id="end-img" src="images/bild3.jpg" alt="Zukunftsszenario"
+    <img id="end-img" src="images/Hintergrundbild.png" alt="Schlussbild"
          onerror="this.style.display='none'; document.getElementById('end-ph').style.display='flex'">
     <div class="img-placeholder" id="end-ph" style="display:none">
-      Zukunftsszenario hier ablegen:<br>
-      <code>quiz-app/images/bild3.jpg</code>
+      Schlussbild hier ablegen:<br>
+      <code>quiz-app/images/Hintergrundbild.png</code>
     </div>
   </div>
   <div class="end-footer">
@@ -402,52 +465,48 @@
 'use strict';
 
 // ════════════════════════════════════════════════════════════════
-//  SZENEN-KONFIGURATION
+//  SPIELFLUSS
 //
-//  Das Quizbild besteht aus 6 separaten Einzelbildern (szene1–6.jpg).
-//  Das CSS-Grid fügt sie nahtlos zusammen:
-//    Zeile 1: szene1.jpg (links)  +  szene2.jpg (rechts)
-//    Zeile 2: szene3.jpg  +  szene4.jpg  +  szene5.jpg
-//    Zeile 3: szene6.jpg (Banner, volle Breite)
+//  Pro Frage wird genau ein Bild angezeigt:
+//    Q1 → bild1.jpg     (gleiches Bild wie Startbildschirm)
+//    Q2 → szene2.jpg
+//    Q3 → szene3.jpg
+//    Q4 → szene4.jpg
+//    Q5 → szene5.jpg
+//    Q6 → szene6.jpg
 //
-//  Szene 1 (cover-0) ist beim Start bereits sichtbar.
-//  Die übrigen 5 werden durch korrekte Antworten aufgedeckt.
+//  Nach korrekter Beantwortung von Q6 → Endbildschirm
+//  (Hintergrundbild.png + Glückwunsch-Text + Nochmal-Button).
 // ════════════════════════════════════════════════════════════════
-const NUM_SCENES    = 6;
-const NUM_QUESTIONS = NUM_SCENES - 1;  // 5 Fragen
+const NUM_QUESTIONS = 6;
+
+// Hintergrundbild des Endbildschirms vorladen, damit es beim Screen-Wechsel
+// sofort sichtbar ist. Die Quiz-Bilder selbst liegen permanent als <img> im
+// DOM (#image-area .scene) und sind damit ohnehin vorgeladen.
+new Image().src = 'images/Hintergrundbild.png';
 
 // ════════════════════════════════════════════════════════════════
 //  FRAGEN-POOL
-//  Format pro Zeile in questions.csv:
-//    Frage;Richtige Antwort;Falsche Antwort 1, Falsche Antwort 2
+//  Die Fragen sind als JSON in <script id="questions-data"> im
+//  HTML-Head eingebettet. Jeder Eintrag enthält:
+//    { question, correct, wrong: [..., ...] }
 //
 //  Es werden zufällig (NUM_QUESTIONS = 5) Fragen ausgewählt.
-//  Die CSV-Datei muss mindestens 5 Fragen enthalten und wird beim
-//  Seitenstart per fetch() geladen.
+//  Der Pool muss mindestens 5 Einträge enthalten.
 // ════════════════════════════════════════════════════════════════
+const questionPool = JSON.parse(
+  document.getElementById('questions-data').textContent
+);
 
 // ════════════════════════════════════════════════════════════════
 //  APP-ZUSTAND
 // ════════════════════════════════════════════════════════════════
-let selectedQ    = [];
-let currentQ     = 0;
-let revealedIdx  = 1;  // cover-0 ist vorab aufgedeckt → nächste ist cover-1
-let questionPool = null;
+let selectedQ = [];
+let currentQ  = 0;
 
 // ════════════════════════════════════════════════════════════════
 //  HILFSFUNKTIONEN
 // ════════════════════════════════════════════════════════════════
-function parseCSV(text) {
-  return text.trim().split('\n').filter(l => l.trim()).map(line => {
-    const parts = line.split(';');
-    return {
-      question : parts[0].trim(),
-      correct  : parts[1].trim(),
-      wrong    : parts[2].split(',').map(s => s.trim()).filter(Boolean),
-    };
-  });
-}
-
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -463,23 +522,28 @@ function switchScreen(from, to) {
 }
 
 // ════════════════════════════════════════════════════════════════
-//  SZENEN-ABDECKUNGEN STEUERN
+//  QUIZ-BILD STEUERN
 //
-//  Die Abdeckungen (cover-0 … cover-5) sind statisch im HTML.
-//  Beim Start wird cover-0 aufgedeckt (erste Szene sichtbar).
-//  resetCovers setzt alle auf den Ausgangszustand zurück.
+//  Crossfade zwischen den 6 Szene-DIVs in #image-area. Beide Bilder
+//  sind permanent im DOM gerendert; gewechselt wird nur die .active-
+//  Klasse. Kein src-Swap, kein Decoding-Race — die Transition läuft
+//  rein über CSS opacity.
 // ════════════════════════════════════════════════════════════════
-function resetCovers() {
-  for (let i = 0; i < NUM_SCENES; i++) {
-    const c = document.getElementById(`cover-${i}`);
-    if (c) c.classList.toggle('revealed', i === 0);
-  }
+const FADE_MS = 400;
+
+function getScenes() {
+  return document.querySelectorAll('#image-area .scene');
 }
 
-function revealNext() {
-  const c = document.getElementById(`cover-${revealedIdx}`);
-  if (c) c.classList.add('revealed');
-  revealedIdx++;
+function setQuizImage(idx, opts = {}) {
+  const { onSwap } = opts;
+  const scenes = getScenes();
+  scenes.forEach((s, i) => s.classList.toggle('active', i === idx));
+  if (onSwap) onSwap();
+}
+
+function hideAllScenes() {
+  getScenes().forEach(s => s.classList.remove('active'));
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -519,13 +583,16 @@ function handleAnswer(btn, isCorrect) {
     document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
 
     setTimeout(() => {
-      revealNext();
       currentQ++;
       if (currentQ < NUM_QUESTIONS) {
-        showQuestion(currentQ);
+        // Crossfade: alte Szene 1→0, neue 0→1 — beide bereits dekodiert.
+        setQuizImage(currentQ, { onSwap: () => showQuestion(currentQ) });
       } else {
         document.getElementById('progress-fill').style.width = '100%';
         document.getElementById('q-meta').textContent = 'Alle Fragen beantwortet!';
+        // Aktive Szene ausblenden, bevor zum Endbildschirm gewechselt wird,
+        // damit szene6 nicht durch die Screen-Überblendung durchscheint.
+        hideAllScenes();
         setTimeout(() => switchScreen('quiz-screen', 'end-screen'), 900);
       }
     }, 650);
@@ -541,13 +608,16 @@ function handleAnswer(btn, isCorrect) {
 //  QUIZ STARTEN / NEU STARTEN
 // ════════════════════════════════════════════════════════════════
 function startQuiz() {
-  if (!questionPool || questionPool.length < NUM_QUESTIONS) return;
+  if (!questionPool || questionPool.length < NUM_QUESTIONS) {
+    document.getElementById('start-error').textContent =
+      `Es werden mindestens ${NUM_QUESTIONS} Fragen benötigt.`;
+    return;
+  }
 
-  selectedQ   = shuffle(questionPool).slice(0, NUM_QUESTIONS);
-  currentQ    = 0;
-  revealedIdx = 1;
+  selectedQ = shuffle(questionPool).slice(0, NUM_QUESTIONS);
+  currentQ  = 0;
 
-  resetCovers();
+  setQuizImage(0);
   switchScreen('start-screen', 'quiz-screen');
   showQuestion(0);
 }
@@ -555,34 +625,6 @@ function startQuiz() {
 function restartQuiz() {
   switchScreen('end-screen', 'start-screen');
 }
-
-// ════════════════════════════════════════════════════════════════
-//  FRAGEN AUS questions.csv LADEN
-//
-//  Der Start-Button bleibt deaktiviert, bis die Datei erfolgreich
-//  geladen und geparst wurde. Schlägt der Ladevorgang fehl (z.B. bei
-//  Aufruf über file://), wird eine Fehlermeldung angezeigt.
-// ════════════════════════════════════════════════════════════════
-fetch('questions.csv')
-  .then(r => {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.text();
-  })
-  .then(text => {
-    const pool = parseCSV(text);
-    if (pool.length < NUM_QUESTIONS) {
-      throw new Error(`questions.csv enthält nur ${pool.length} Fragen, benötigt werden ${NUM_QUESTIONS}.`);
-    }
-    questionPool = pool;
-    const btn = document.getElementById('start-btn');
-    btn.disabled = false;
-    btn.innerHTML = '&#9654; Quiz starten';
-  })
-  .catch(err => {
-    document.getElementById('start-error').textContent =
-      'Fragen konnten nicht geladen werden. Bitte die Seite über einen lokalen HTTP-Server öffnen.';
-    console.error('questions.csv:', err);
-  });
 </script>
 </body>
 </html>
