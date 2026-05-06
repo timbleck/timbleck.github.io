@@ -4,11 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quiz App
 
-Eine JavaScript-Anwendung für ein Quiz, das den Spieler durch Beantwortung von 5 Fragen durch einen Comic-Strip führt. Jede korrekte Antwort deckt das nächste Bildsegment auf; am Ende erscheint ein Final-Bild.
+JavaScript-Quiz, das den Spieler durch 6 Fragen führt. Pro Frage wird genau ein Bild angezeigt; korrekte Antwort wechselt zum nächsten Bild und zur nächsten Frage. Nach Q6 erscheint der Schlussbildschirm.
 
 ## Entwicklung
 
-Die App besteht aus `index.html` plus `questions.csv` — kein Build-Tool, kein npm, keine externe Abhängigkeit. Da die Fragen per `fetch()` geladen werden, ist ein lokaler HTTP-Server erforderlich:
+Die App besteht aus genau einer Datei: `index.html`. Kein Build-Tool, kein npm, keine externe Abhängigkeit, kein HTTP-Server nötig — die Datei kann direkt per `file://` geöffnet werden, da die Fragen als JSON inline im HTML-Head liegen (kein `fetch()` mehr).
+
+Optional ein lokaler Server:
 
 ```bash
 python3 -m http.server 8080
@@ -16,45 +18,74 @@ python3 -m http.server 8080
 npx serve .
 ```
 
-Direktes Öffnen als `file://` funktioniert nicht (Browser blockieren `fetch()` auf `file://`). Schlägt der Ladevorgang fehl, bleibt der Start-Button deaktiviert und es erscheint eine Fehlermeldung.
-
 ## Architektur
 
-Alles befindet sich in `index.html`: CSS im `<head>`, JavaScript am Ende des `<body>`. Es gibt keine externen Skripte oder Stylesheets.
+Alles in `index.html`: CSS im `<head>`, JSON-Fragenpool im `<head>`, JavaScript am Ende des `<body>`. Keine externen Skripte oder Stylesheets.
 
-**Drei Screens** (per CSS opacity + `pointer-events` umgeschaltet):
-- `#start-screen` — zeigt `images/bild1.jpg`
-- `#quiz-screen` — Bildraster + Fragebereich
-- `#end-screen` — zeigt `images/bild3.jpg`
+**Drei Screens** (per CSS `opacity` + `pointer-events` umgeschaltet, 0.4 s Transition):
+- `#start-screen` — zeigt `images/bild1.jpg` + Headline + Start-Button + KI-Hinweis
+- `#quiz-screen` — Bildbereich + Fragebereich
+- `#end-screen` — zeigt `images/Hintergrundbild.png` + Glückwunsch-Text + „Nochmal spielen"-Button
 
-**Bildraster** (`#image-area`): Flexbox-Spalte mit 3 `.comic-row`-Zeilen, je als Flexbox-Zeile:
-- Zeile 1 (`.comic-row`): szene1.jpg + szene2.jpg — `height: 100%; width: auto`, Breite ergibt sich aus natürlichem Seitenverhältnis
-- Zeile 2 (`.comic-row`): szene3.jpg + szene4.jpg + szene5.jpg — gleich
-- Zeile 3 (`.comic-row--banner`): szene6.jpg — `flex: 1` + `object-fit: cover`, füllt volle Breite
+### Bildwechsel: Szene-DIVs mit Crossfade
 
-Panels liegen direkt aneinander (kein Leerraum zwischen ihnen); überschüssiger Platz erscheint als dunkler Rand an den Viewport-Außenkanten.
+Der Quizbildbereich (`#image-area`) enthält **6 vorab gerenderte `.scene`-DIVs**, je mit einem `<img>`. Alle Bilder liegen permanent im DOM und sind damit vorab dekodiert.
 
-Jede Zelle hat ein darüber liegendes `.scene-cover`-Div (dunkle Abdeckung). Korrekte Antworten rufen `revealNext()` auf, das der Cover-Klasse `revealed` hinzufügt → CSS-Übergang auf `opacity: 0`.
-
-**Fragerunde**: `NUM_QUESTIONS = 5` (= `NUM_SCENES - 1`). `cover-0` ist beim Start bereits aufgedeckt (erste Szene immer sichtbar). `revealedIdx` zählt mit, welches Cover als nächstes aufzudecken ist.
-
-**Fragendaten**: CSV-Format mit Semikolon als Trennzeichen:
+```html
+<div id="image-area">
+  <div class="scene active"><img src="images/bild1.jpg"></div>
+  <div class="scene"><img src="images/szene2.jpg"></div>
+  ...
+  <div class="scene"><img src="images/szene6.jpg"></div>
+</div>
 ```
-Frage;Richtige Antwort;Falsche Antwort 1, Falsche Antwort 2
-```
-- `questions.csv` wird beim Seitenstart per `fetch()` geladen — einzige Quelle der Fragen.
-- Der Start-Button ist solange deaktiviert (`Lade Fragen…`), bis die Datei erfolgreich geladen ist.
-- Pool muss mindestens 5 Fragen enthalten, sonst wird der Quiz-Start verweigert.
-- Aus dem Pool werden zufällig 5 Fragen ausgewählt; Antwortreihenfolge wird ebenfalls zufällig gemischt.
 
-**Falsche Antworten** pro Frage: mindestens 2, kommagetrennt im dritten CSV-Feld. Die Antwortbuttons (`#answers`) werden bei jeder Frage neu gerendert.
+Wechsel erfolgt durch Toggle der `.active`-Klasse — CSS `transition: opacity 0.4s` erzeugt automatisch einen Crossfade. **Wichtig**: Kein `src`-Tausch verwenden, das hatte historisch Decoding-Races verursacht (alte Bytes blieben während Fade-in sichtbar).
+
+`setQuizImage(idx, { onSwap })` setzt die aktive Szene; `hideAllScenes()` blendet alle aus (vor dem Wechsel zum Endbildschirm).
+
+### Spielfluss
+
+`NUM_QUESTIONS = 6`. Die 6 Bilder sind 1:1 auf die Fragen gemappt:
+
+| Frage | Bild |
+|---|---|
+| Q1 | `bild1.jpg` (selbes Bild wie Startbildschirm) |
+| Q2 | `szene2.jpg` |
+| Q3 | `szene3.jpg` |
+| Q4 | `szene4.jpg` |
+| Q5 | `szene5.jpg` |
+| Q6 | `szene6.jpg` |
+| nach Q6 | Wechsel zum Endbildschirm (`Hintergrundbild.png`) |
+
+### Fragendaten (JSON inline)
+
+Fragenpool als JSON-Block im `<head>`:
+
+```html
+<script id="questions-data" type="application/json">
+[
+  { "question": "...", "correct": "...", "wrong": ["...", "..."] },
+  ...
+]
+</script>
+```
+
+- Beim Seitenstart per `JSON.parse(document.getElementById('questions-data').textContent)` geladen.
+- Pool muss mindestens 6 Einträge enthalten, sonst wird der Quiz-Start verweigert.
+- Aus dem Pool werden zufällig 6 Fragen ausgewählt; Antwortreihenfolge wird gemischt.
+- Pro Frage genau eine richtige Antwort und mindestens 2 falsche; nur 2 zufällige falsche werden angezeigt.
 
 ## Bilder
 
 | Datei | Verwendung |
 |---|---|
-| `images/bild1.jpg` | Start-Screen Vorschaubild |
-| `images/bild3.jpg` | End-Screen Final-Bild |
-| `images/szene1–6.jpg` | Comicstrip-Raster im Quiz (6 Segmente) |
+| `images/bild1.jpg` | Start-Screen + Q1 im Quiz |
+| `images/szene2.jpg` … `szene6.jpg` | Q2–Q6 im Quiz |
+| `images/Hintergrundbild.png` | End-Screen Schlussbild |
 
-Fehlende Bilder zeigen einen Platzhalter (`img-placeholder`) — kein JS-Fehler.
+`Hintergrundbild.png` wird per `new Image()` vorgeladen, da es nicht permanent im DOM hängt. Quizbilder sind durch ihre `<img>`-Elemente automatisch geladen.
+
+## Layout-Hinweis
+
+Auf dem Endbildschirm keine `position: relative; top: ±X` an Texten/Bild/Button verwenden — historisch führte das zu kollidierenden Verschiebungen (Bild abgeschnitten, Button auf Bild, Texte unsichtbar). Stattdessen Flex-Layout mit `justify-content: center` und `gap` nutzen; `#end-screen .img-wrapper` mit `flex: 0 1 auto` (kein flex-grow) und `#end-img max-height: 60vh`.
