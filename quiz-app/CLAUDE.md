@@ -58,23 +58,30 @@ Wechsel erfolgt durch Toggle der `.active`-Klasse — CSS `transition: opacity 0
 | Q6 | `szene6.jpg` |
 | nach Q6 | Wechsel zum Endbildschirm (`Hintergrundbild.png`) |
 
-### Fragendaten (JSON inline)
+### Fragendaten (JSON inline) — ein Pool pro Bild
 
-Fragenpool als JSON-Block im `<head>`:
+Statt eines globalen Pools hat **jedes Bild seinen eigenen Fragenpool**. Der JSON-Block im `<head>` ist ein Array, dessen Index der Szene-Index in `#image-area` ist:
 
 ```html
 <script id="questions-data" type="application/json">
 [
-  { "question": "...", "correct": "...", "wrong": ["...", "..."] },
+  {
+    "image": "bild1.jpg",
+    "questions": [
+      { "question": "...", "correct": "...", "wrong": ["...", "..."] },
+      ...
+    ]
+  },
   ...
 ]
 </script>
 ```
 
-- Beim Seitenstart per `JSON.parse(document.getElementById('questions-data').textContent)` geladen.
-- Pool muss mindestens 6 Einträge enthalten, sonst wird der Quiz-Start verweigert.
-- Aus dem Pool werden zufällig 6 Fragen ausgewählt; Antwortreihenfolge wird gemischt.
-- Pro Frage genau eine richtige Antwort und mindestens 2 falsche; nur 2 zufällige falsche werden angezeigt.
+- Beim Seitenstart per `JSON.parse(document.getElementById('questions-data').textContent)` als `imagePools` geladen.
+- Es müssen mindestens 6 Pools vorhanden sein und jeder Pool mindestens eine Frage enthalten, sonst wird der Quiz-Start verweigert.
+- Beim Start wird **pro Bild genau eine Frage** zufällig aus dessen Pool gezogen; die Bildreihenfolge (Q1→bild1 … Q6→szene6) bleibt erhalten.
+- Antwortreihenfolge wird gemischt. Pro Frage genau eine richtige Antwort und mindestens 2 falsche; nur 2 zufällige falsche werden angezeigt.
+- Das `image`-Feld dient der Lesbarkeit/Dokumentation; die Zuordnung erfolgt über den Array-Index.
 
 ## Bilder
 

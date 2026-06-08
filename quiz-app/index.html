@@ -4,57 +4,90 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tool-Quiz</title>
+  <!-- Pro Bild ein eigener Fragenpool. Index = Szene-Index in #image-area.
+       Beim Quizstart wird je Bild genau eine Frage zufällig aus seinem Pool
+       gezogen; die Bildreihenfolge bleibt erhalten. -->
   <script id="questions-data" type="application/json">
   [
     {
-      "question": "Was ist Jira hauptsächlich?",
-      "correct": "Ein agiles Projektmanagement- und Aufgabenverfolgungstool",
-      "wrong": ["Ein Dokumentations-Wiki", "Ein E-Mail-Client"]
+      "image": "bild1.jpg",
+      "questions": [
+        {
+          "question": "Was ist Jira hauptsächlich?",
+          "correct": "Ein agiles Projektmanagement- und Aufgabenverfolgungstool",
+          "wrong": ["Ein Dokumentations-Wiki", "Ein E-Mail-Client"]
+        },
+        {
+          "question": "Was zeigt der Backlog in Jira?",
+          "correct": "Alle geplanten, noch nicht begonnenen Aufgaben des Projekts",
+          "wrong": ["Den abgeschlossenen Teil des letzten Sprints", "Den Projektzeitplan mit Meilensteinen"]
+        }
+      ]
     },
     {
-      "question": "Wofür wird Confluence primär genutzt?",
-      "correct": "Zum gemeinsamen Dokumentieren und Teilen von Wissen im Team",
-      "wrong": ["Zum Verwalten von Projekttasks in Boards", "Zum Versenden von Statusberichten"]
+      "image": "szene2.jpg",
+      "questions": [
+        {
+          "question": "Wofür wird Confluence primär genutzt?",
+          "correct": "Zum gemeinsamen Dokumentieren und Teilen von Wissen im Team",
+          "wrong": ["Zum Verwalten von Projekttasks in Boards", "Zum Versenden von Statusberichten"]
+        },
+        {
+          "question": "Was dokumentiert man typischerweise in Confluence?",
+          "correct": "Projektergebnisse, Vorlagen, Entscheidungen und Teamwissen",
+          "wrong": ["Offene Bugs und Testfälle in Kanban-Boards", "Rechnungen und Vertragsunterlagen"]
+        }
+      ]
     },
     {
-      "question": "Welche drei Tools bilden die Starter Familie?",
-      "correct": "Jira, Confluence und SharePoint",
-      "wrong": ["Slack, Teams und Outlook", "Trello, Notion und Google Drive"]
+      "image": "szene3.jpg",
+      "questions": [
+        {
+          "question": "Welche drei Tools bilden die Starter Familie?",
+          "correct": "Jira, Confluence und SharePoint",
+          "wrong": ["Slack, Teams und Outlook", "Trello, Notion und Google Drive"]
+        },
+        {
+          "question": "Welchen Hauptvorteil bietet SharePoint?",
+          "correct": "Strukturierte Dateiablage und Zusammenarbeit im Team",
+          "wrong": ["Automatisches Erstellen von Jira-Aufgaben", "Live-Videokonferenzen im Team"]
+        }
+      ]
     },
     {
-      "question": "Was zeigt der Backlog in Jira?",
-      "correct": "Alle geplanten, noch nicht begonnenen Aufgaben des Projekts",
-      "wrong": ["Den abgeschlossenen Teil des letzten Sprints", "Den Projektzeitplan mit Meilensteinen"]
+      "image": "szene4.jpg",
+      "questions": [
+        {
+          "question": "Was ist ein Epic in Jira?",
+          "correct": "Ein großes Arbeitspaket das in kleinere User Stories unterteilt wird",
+          "wrong": ["Ein kritischer Fehler mit höchster Priorität", "Eine abgeschlossene und archivierte Aufgabe"]
+        },
+        {
+          "question": "Welche Aufgabentypen gibt es in Jira?",
+          "correct": "Anforderung, Epic, Story, Aufgabe, Test, Risiko und Bug",
+          "wrong": ["Kapitel, Abschnitt und Absatz", "Phase, Meilenstein und Deployment"]
+        }
+      ]
     },
     {
-      "question": "Welchen Hauptvorteil bietet SharePoint?",
-      "correct": "Strukturierte Dateiablage und Zusammenarbeit im Team",
-      "wrong": ["Automatisches Erstellen von Jira-Aufgaben", "Live-Videokonferenzen im Team"]
+      "image": "szene5.jpg",
+      "questions": [
+        {
+          "question": "Welchen Vorteil bringt die Kombination von Jira und Confluence?",
+          "correct": "Transparenz und strukturiertes Arbeiten über alle Projektphasen",
+          "wrong": ["Aufgaben werden automatisch erledigt", "Externe Kundenzugänge entfallen"]
+        }
+      ]
     },
     {
-      "question": "Was ist ein Epic in Jira?",
-      "correct": "Ein großes Arbeitspaket das in kleinere User Stories unterteilt wird",
-      "wrong": ["Ein kritischer Fehler mit höchster Priorität", "Eine abgeschlossene und archivierte Aufgabe"]
-    },
-    {
-      "question": "Welchen Vorteil bringt die Kombination von Jira und Confluence?",
-      "correct": "Transparenz und strukturiertes Arbeiten über alle Projektphasen",
-      "wrong": ["Aufgaben werden automatisch erledigt", "Externe Kundenzugänge entfallen"]
-    },
-    {
-      "question": "Was dokumentiert man typischerweise in Confluence?",
-      "correct": "Projektergebnisse, Vorlagen, Entscheidungen und Teamwissen",
-      "wrong": ["Offene Bugs und Testfälle in Kanban-Boards", "Rechnungen und Vertragsunterlagen"]
-    },
-    {
-      "question": "Welche Aufgabentypen gibt es in Jira?",
-      "correct": "Anforderung, Epic, Story, Aufgabe, Test, Risiko und Bug",
-      "wrong": ["Kapitel, Abschnitt und Absatz", "Phase, Meilenstein und Deployment"]
-    },
-    {
-      "question": "Was bedeutet Projektzeit verkürzt durch Tool-Einsatz?",
-      "correct": "Alle Beteiligten arbeiten effizienter durch klare Strukturen und Transparenz",
-      "wrong": ["Meetings werden automatisch protokolliert", "Aufgaben werden ohne Team erledigt"]
+      "image": "szene6.jpg",
+      "questions": [
+        {
+          "question": "Was bedeutet Projektzeit verkürzt durch Tool-Einsatz?",
+          "correct": "Alle Beteiligten arbeiten effizienter durch klare Strukturen und Transparenz",
+          "wrong": ["Meetings werden automatisch protokolliert", "Aufgaben werden ohne Team erledigt"]
+        }
+      ]
     }
   ]
   </script>
@@ -486,15 +519,17 @@ const NUM_QUESTIONS = 6;
 new Image().src = 'images/Hintergrundbild.png';
 
 // ════════════════════════════════════════════════════════════════
-//  FRAGEN-POOL
-//  Die Fragen sind als JSON in <script id="questions-data"> im
-//  HTML-Head eingebettet. Jeder Eintrag enthält:
-//    { question, correct, wrong: [..., ...] }
+//  FRAGEN-POOLS — einer pro Bild
+//  Die Pools sind als JSON in <script id="questions-data"> im
+//  HTML-Head eingebettet. Jeder Eintrag steht für ein Bild (Szene):
+//    { image, questions: [ { question, correct, wrong: [...] }, ... ] }
 //
-//  Es werden zufällig (NUM_QUESTIONS = 5) Fragen ausgewählt.
-//  Der Pool muss mindestens 5 Einträge enthalten.
+//  Index i entspricht der i-ten Szene in #image-area. Beim Quizstart
+//  wird je Bild genau eine Frage zufällig aus seinem Pool gezogen.
+//  Es müssen mindestens NUM_QUESTIONS Pools vorhanden sein und jeder
+//  davon mindestens eine Frage enthalten.
 // ════════════════════════════════════════════════════════════════
-const questionPool = JSON.parse(
+const imagePools = JSON.parse(
   document.getElementById('questions-data').textContent
 );
 
@@ -608,13 +643,16 @@ function handleAnswer(btn, isCorrect) {
 //  QUIZ STARTEN / NEU STARTEN
 // ════════════════════════════════════════════════════════════════
 function startQuiz() {
-  if (!questionPool || questionPool.length < NUM_QUESTIONS) {
+  const pools = Array.isArray(imagePools) ? imagePools.slice(0, NUM_QUESTIONS) : [];
+  if (pools.length < NUM_QUESTIONS ||
+      pools.some(p => !p || !Array.isArray(p.questions) || p.questions.length < 1)) {
     document.getElementById('start-error').textContent =
-      `Es werden mindestens ${NUM_QUESTIONS} Fragen benötigt.`;
+      `Es werden ${NUM_QUESTIONS} Bild-Pools mit je mindestens einer Frage benötigt.`;
     return;
   }
 
-  selectedQ = shuffle(questionPool).slice(0, NUM_QUESTIONS);
+  // Pro Bild genau eine Frage zufällig ziehen; Bildreihenfolge bleibt erhalten.
+  selectedQ = pools.map(p => shuffle(p.questions)[0]);
   currentQ  = 0;
 
   setQuizImage(0);
