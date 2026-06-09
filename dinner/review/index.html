@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Berlin Dinner Challenge – Rückblick</title>
+  <meta name="description" content="Drei Jahre, 97 Berliner Ortsteile, jede Woche ein neues Lokal – der Rückblick auf die Berlin Dinner Challenge von Tim & Steve.">
+  <link rel="stylesheet" href="../assets/leaflet/leaflet.css">
+  <link rel="stylesheet" href="review.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="#start">Start</a>
+    <a href="#karte">Karte</a>
+    <a href="#reise">Die Reise</a>
+    <a href="#zahlen">Zahlen</a>
+  </nav>
+
+  <header class="hero" id="start">
+    <p class="kicker">Berlin Dinner Challenge</p>
+    <h1>Wir haben uns einmal quer durch Berlin gegessen.</h1>
+    <p class="lead">
+      Jede Woche ein neuer Ortsteil, ausgelost per Zufall – bis ganz Berlin
+      auf dem Teller lag. Das hier ist unser Rückblick.
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat"><b id="stat-districts">–</b><span>Ortsteile</span></div>
+      <div class="hero-stat"><b id="stat-weeks">–</b><span>Wochen</span></div>
+      <div class="hero-stat"><b id="stat-years">–</b><span>Jahre</span></div>
+      <div class="hero-stat"><b id="stat-cuisines">–</b><span>Küchen</span></div>
+    </div>
+  </header>
+
+  <section class="map-section" id="karte">
+    <div class="map-wrap">
+      <h2>Ganz Berlin, Ortsteil für Ortsteil</h2>
+      <p class="section-sub">Jedes grüne Feld ein Abendessen. Tipp: auf einen Ortsteil tippen für das Lokal – oder die Tour abspielen.</p>
+      <div id="map">lädt …</div>
+      <div class="map-controls">
+        <button class="btn" id="play">▶ Tour abspielen</button>
+        <div class="map-caption" id="map-caption">Von Friedrichshain bis zum Finale am Schlachtensee.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reise">
+    <h2>Die Reise</h2>
+    <p class="section-sub">Alle Abende in der Reihenfolge, in der sie ausgelost wurden. Fotos folgen.</p>
+    <div id="timeline"></div>
+  </section>
+
+  <section id="zahlen">
+    <h2>Berlin in Zahlen</h2>
+    <p class="section-sub">Was nach drei Jahren Auslosen, Anreisen und Aufessen übrig bleibt.</p>
+
+    <div class="stat-grid">
+      <div class="stat"><b id="stat-distance">–</b><span>km Luftlinie zwischen den Lokalen</span></div>
+      <div class="stat"><b id="stat-gap">–</b><span>Tage längste Pause</span></div>
+      <div class="stat"><b id="stat-bezirke">–</b><span>Bezirke komplett</span></div>
+      <div class="stat"><b id="stat-once">–</b><span>Küchen nur ein Mal</span></div>
+    </div>
+
+    <div class="panel">
+      <h3>Das Duell: Wer hat gezogen?</h3>
+      <div class="duel" id="duel"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Lieblingsküchen</h3>
+      <div id="cuisines"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Abende pro Bezirk</h3>
+      <div id="bezirke"></div>
+      <p class="section-sub" id="gap-detail" style="margin:14px 0 0"></p>
+    </div>
+  </section>
+
+  <footer>
+    Berlin Dinner Challenge · 2023 – 2026 · Tim &amp; Steve<br>
+    <a href="../">zurück zur Live-Karte</a>
+  </footer>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lb-prev" aria-label="zurück">‹</button>
+    <img alt="">
+    <button class="lb-next" aria-label="weiter">›</button>
+  </div>
+
+  <script src="../assets/leaflet/leaflet.js"></script>
+  <script src="review.js"></script>
+</body>
+</html>
