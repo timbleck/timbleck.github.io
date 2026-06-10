@@ -173,9 +173,9 @@ section > h2 {
   box-shadow: var(--shadow);
 }
 .card-photo {
-  flex: 0 0 84px;
-  width: 84px;
-  height: 84px;
+  flex: 0 0 132px;
+  width: 132px;
+  aspect-ratio: 3 / 2;
   border-radius: 12px;
   overflow: hidden;
   background: linear-gradient(135deg, #fbeef0, #f3dde0);
@@ -217,14 +217,23 @@ section > h2 {
   font-weight: 800;
 }
 
-.popup-foto { width: 200px; max-width: 56vw; max-height: 130px; object-fit: cover; border-radius: 8px; margin-top: 6px; }
-.popup-mosaic {
-  width: 200px;
-  max-width: 56vw;
-  aspect-ratio: 1;
-  margin-top: 6px;
-  border-radius: 8px;
-  overflow: hidden;
+/* ---------- Karten-Popups: identisches Card-Layout ---------- */
+.leaflet-popup-content-wrapper { padding: 0; overflow: hidden; border-radius: 16px; }
+.leaflet-popup-content { margin: 0; }
+.leaflet-popup-content .card {
+  margin: 0;
+  border: none;
+  box-shadow: none;
+  gap: 12px;
+}
+.leaflet-popup-content .card-photo { flex-basis: 132px; width: 132px; }
+.leaflet-popup-content .card-tags { margin-top: 2px; }
+.leaflet-popup-content .card-head { padding-right: 14px; } /* Platz für × */
+.leaflet-popup-close-button {
+  top: 6px !important;
+  right: 6px !important;
+  color: var(--ink) !important;
+  font-size: 18px !important;
 }
 
 /* lightbox */
@@ -359,6 +368,6 @@ footer {
 footer a { color: var(--red); }
 
 @media (min-width: 560px) {
-  .card-photo { flex-basis: 110px; width: 110px; height: 110px; }
+  .card-photo { flex-basis: 168px; width: 168px; }
   .stat-grid { grid-template-columns: repeat(4, 1fr); }
 }

@@ -36,7 +36,7 @@ let map, animTimer = null, finaleMarker = null;
 const layersByName = {}, centroidByName = {};
 const TOUR_INTERVAL = 2500; // ms pro Station
 // Popups beschränken + im Kartenausschnitt halten, damit nichts abgeschnitten wird
-const POPUP_OPTS = { maxWidth: 240, maxHeight: 240, autoPanPadding: [24, 24], keepInView: true };
+const POPUP_OPTS = { maxWidth: 360, minWidth: 320, autoPanPadding: [24, 24], keepInView: true };
 
 async function init() {
   const [data, geo] = await Promise.all([
@@ -83,14 +83,9 @@ function buildMap(geo, byName, done, finale) {
       layersByName[name] = layer;
       centroidByName[name] = centroid(f.geometry);
       const v = byName.get(name);
-      let html = `<em>${name} (${f.properties.BEZIRK})</em>`;
-      if (v) {
-        html += `<br><strong>${v.beschreibung} – ${v.kueche}</strong><br>${fmtDate(v.datum)} · ${v.wer}`;
-        if (v.fotos && v.fotos.length === 1)
-          html += `<br><img class="popup-foto" src="photos/${v.fotos[0]}" alt="" loading="lazy">`;
-        else if (v.fotos && v.fotos.length > 1)
-          html += `<div class="popup-mosaic">${photoMosaic(v.fotos)}</div>`;
-      }
+      const html = v
+        ? cardMarkup(v)
+        : `<em>${name} (${f.properties.BEZIRK})</em>`;
       layer.bindPopup(html, POPUP_OPTS);
     }
   }).addTo(map);
@@ -98,7 +93,7 @@ function buildMap(geo, byName, done, finale) {
   // Finale-Marker
   centroidByName[finale.ortsteil] = SCHLACHTENSEE;
   finaleMarker = L.marker(SCHLACHTENSEE).addTo(map)
-    .bindPopup(`<em>${finale.ortsteil} (${finale.bezirk})</em><br><strong>Das große Finale</strong>`, POPUP_OPTS);
+    .bindPopup(cardMarkup(finale, true), POPUP_OPTS);
 
   // animierter Pfad
   const path = L.polyline([], { color: "#c8102e", weight: 3, opacity: 0.85, dashArray: "1 6", lineCap: "round" }).addTo(map);
@@ -198,42 +193,40 @@ function photoCell(v) {
           </div>`;
 }
 
-function card(v) {
-  const el = document.createElement('article');
-  el.className = 'card';
-  el.innerHTML = `
+// Gemeinsames Card-Markup für Timeline UND Karten-Popups, damit beide gleich aussehen.
+function cardMarkup(v, finale = false) {
+  const body = finale
+    ? `<div class="card-head">
+         <span class="card-nr">#${v.nr}</span>
+         <span class="card-date">Das große Finale</span>
+       </div>
+       <h3 class="card-title">${v.ortsteil}</h3>
+       <p class="card-bezirk">${v.bezirk} · gezogen von ${v.wer}</p>
+       <p class="finale-note">🏁 Der krönende Abschluss – am See, gemeinsam.</p>`
+    : `<div class="card-head">
+         <span class="card-nr">#${v.nr}</span>
+         <span class="card-date">${fmtDate(v.datum)}</span>
+       </div>
+       <h3 class="card-title">${v.beschreibung || v.ortsteil}</h3>
+       <p class="card-bezirk">${v.ortsteil} · ${v.bezirk}</p>
+       <div class="card-tags">
+         ${v.kueche ? `<span class="tag cuisine">${v.kueche}</span>` : ``}
+         <span class="tag who-${v.wer}">gezogen: ${v.wer}</span>
+       </div>`;
+  return `<article class="card${finale ? ' finale' : ''}">
     ${photoCell(v)}
-    <div class="card-body">
-      <div class="card-head">
-        <span class="card-nr">#${v.nr}</span>
-        <span class="card-date">${fmtDate(v.datum)}</span>
-      </div>
-      <h3 class="card-title">${v.beschreibung || v.ortsteil}</h3>
-      <p class="card-bezirk">${v.ortsteil} · ${v.bezirk}</p>
-      <div class="card-tags">
-        ${v.kueche ? `<span class="tag cuisine">${v.kueche}</span>` : ``}
-        <span class="tag who-${v.wer}">gezogen: ${v.wer}</span>
-      </div>
-    </div>`;
-  return el;
+    <div class="card-body">${body}</div>
+  </article>`;
 }
 
-function finaleCard(v) {
-  const el = document.createElement('article');
-  el.className = 'card finale';
-  el.innerHTML = `
-    ${photoCell(v)}
-    <div class="card-body">
-      <div class="card-head">
-        <span class="card-nr">#${v.nr}</span>
-        <span class="card-date">Das große Finale</span>
-      </div>
-      <h3 class="card-title">${v.ortsteil}</h3>
-      <p class="card-bezirk">${v.bezirk} · gezogen von ${v.wer}</p>
-      <p class="finale-note">🏁 Der krönende Abschluss – am See, gemeinsam.</p>
-    </div>`;
-  return el;
+function cardEl(v, finale = false) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = cardMarkup(v, finale);
+  return tmp.firstElementChild;
 }
+
+function card(v)       { return cardEl(v); }
+function finaleCard(v) { return cardEl(v, true); }
 
 /* ---------- Statistiken ---------- */
 function buildStats(done) {
@@ -302,7 +295,7 @@ function setupLightbox() {
   const img = box.querySelector('img');
   let list = [], idx = 0;
   const show = () => { img.src = 'photos/' + list[idx]; };
-  document.getElementById('timeline').addEventListener('click', e => {
+  document.addEventListener('click', e => {
     const cell = e.target.closest('.card-photo');
     if (!cell || !cell.dataset.fotos) return;
     list = JSON.parse(cell.dataset.fotos);
