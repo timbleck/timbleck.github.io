@@ -36,7 +36,13 @@ let map, animTimer = null, finaleMarker = null;
 const layersByName = {}, centroidByName = {};
 const TOUR_INTERVAL = 2500; // ms pro Station
 // Popups beschränken + im Kartenausschnitt halten, damit nichts abgeschnitten wird
-const POPUP_OPTS = { maxWidth: 520, minWidth: 300, autoPanPadding: [24, 24], keepInView: true };
+// maxWidth dynamisch an die Kartenbreite koppeln, damit das Popup auf schmalen
+// Screens (gestapeltes Card-Layout) nie breiter als die Karte wird.
+const POPUP_OPTS = { maxWidth: 520, minWidth: 240, autoPanPadding: [24, 24], keepInView: true };
+function popupOpts() {
+  const mapW = document.getElementById('map')?.clientWidth || 520;
+  return { ...POPUP_OPTS, maxWidth: Math.min(520, mapW - 24) };
+}
 
 async function init() {
   const [data, geo] = await Promise.all([
@@ -86,14 +92,14 @@ function buildMap(geo, byName, done, finale) {
       const html = v
         ? cardMarkup(v)
         : `<em>${name} (${f.properties.BEZIRK})</em>`;
-      layer.bindPopup(html, POPUP_OPTS);
+      layer.bindPopup(html, popupOpts());
     }
   }).addTo(map);
 
   // Finale-Marker
   centroidByName[finale.ortsteil] = SCHLACHTENSEE;
   finaleMarker = L.marker(SCHLACHTENSEE).addTo(map)
-    .bindPopup(cardMarkup(finale, true), POPUP_OPTS);
+    .bindPopup(cardMarkup(finale, true), popupOpts());
 
   // animierter Pfad
   const path = L.polyline([], { color: "#c8102e", weight: 3, opacity: 0.85, dashArray: "1 6", lineCap: "round" }).addTo(map);

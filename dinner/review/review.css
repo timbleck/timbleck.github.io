@@ -230,11 +230,26 @@ section > h2 {
 .leaflet-popup-content .card-photo { flex: 0 0 auto; width: min(220px, 46vw); align-self: flex-start; }
 .leaflet-popup-content .card-tags { margin-top: 2px; }
 .leaflet-popup-content .card-head { padding-right: 14px; } /* Platz für × */
+
+/* Schmale Screens (iPhone & Co.): Card im Popup vertikal stapeln, damit das
+   Querformat-Foto über die volle Breite passt und das Popup in die Karte passt. */
+@media (max-width: 559px) {
+  .leaflet-popup-content .card { flex-direction: column; gap: 10px; }
+  .leaflet-popup-content .card-photo { width: 100%; align-self: stretch; }
+}
+
 .leaflet-popup-close-button {
   top: 6px !important;
   right: 6px !important;
+  z-index: 1;
+  width: 26px !important;
+  height: 26px !important;
+  line-height: 26px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.9) !important;
   color: var(--ink) !important;
   font-size: 18px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 /* lightbox */
