@@ -254,11 +254,51 @@ function buildStats(done) {
   const bez = {};
   done.forEach(d => { bez[d.bezirk] = (bez[d.bezirk]||0)+1; });
 
+  // Längster Streak: aufeinanderfolgende Kalenderwochen ohne Lücke
+  const weekIdx = s => {
+    const dt = parseDate(s);
+    dt.setDate(dt.getDate() - ((dt.getDay() + 6) % 7)); // auf Montag zurück
+    return Math.round(dt.getTime() / (7 * 864e5));
+  };
+  const weeks = [...new Set(done.map(d => weekIdx(d.datum)))].sort((a, b) => a - b);
+  let streak = 1, bestStreak = 1;
+  for (let i = 1; i < weeks.length; i++) {
+    streak = weeks[i] - weeks[i-1] === 1 ? streak + 1 : 1;
+    bestStreak = Math.max(bestStreak, streak);
+  }
+
+  // Ø Tage zwischen Abenden
+  const spanDays = (parseDate(done[done.length-1].datum) - parseDate(done[0].datum)) / 864e5;
+  const avgGap = Math.round(spanDays / (done.length - 1));
+
+  // Fotos gesamt
+  const photoCount = done.reduce((s, d) => s + (d.fotos ? d.fotos.length : 0), 0);
+
+  // weiteste Einzeletappe (Luftlinie zwischen zwei aufeinanderfolgenden Lokalen)
+  let maxHop = 0;
+  for (let i = 1; i < done.length; i++) {
+    const a = centroidByName[done[i-1].ortsteil], b = centroidByName[done[i].ortsteil];
+    if (a && b) maxHop = Math.max(maxHop, haversine(a, b));
+  }
+
+  // Abende pro Jahr
+  const perYear = {};
+  done.forEach(d => { const y = parseDate(d.datum).getFullYear(); perYear[y] = (perYear[y]||0)+1; });
+
+  // Wochentage
+  const WD = ["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"];
+  const weekday = {};
+  done.forEach(d => { const k = (parseDate(d.datum).getDay() + 6) % 7; weekday[k] = (weekday[k]||0)+1; });
+
   // Stat-Kacheln
   document.getElementById('stat-distance').textContent = Math.round(dist);
   document.getElementById('stat-gap').textContent = Math.round(gap);
   document.getElementById('stat-bezirke').textContent = Object.keys(bez).length;
   document.getElementById('stat-once').textContent = onceOnly;
+  document.getElementById('stat-streak').textContent = bestStreak;
+  document.getElementById('stat-avg').textContent = avgGap;
+  document.getElementById('stat-photos').textContent = photoCount;
+  document.getElementById('stat-hop').textContent = Math.round(maxHop);
 
   // Duell
   const s = wer['Steve']||0, t = wer['Tim']||0, sum = s+t;
@@ -283,6 +323,32 @@ function buildStats(done) {
       ${once.map(([k]) => `<span class="ctag">${k}</span>`).join('')}
     </div>` : '';
   document.getElementById('cuisines').innerHTML = bars + tags;
+
+  // Abende pro Jahr
+  const years = Object.entries(perYear).sort((a, b) => a[0] - b[0]);
+  const ymax = Math.max(...years.map(([, n]) => n));
+  document.getElementById('years').innerHTML = years.map(([y, n]) => `
+    <div class="barrow">
+      <span class="lbl" style="flex-basis:54px">${y}</span>
+      <span class="track"><i style="width:${n/ymax*100}%"></i></span>
+      <span class="val">${n}</span>
+    </div>`).join('');
+
+  // Wochentage
+  const wmax = Math.max(...Object.values(weekday));
+  document.getElementById('weekdays').innerHTML = WD
+    .map((name, k) => [name, weekday[k] || 0])
+    .filter(([, n]) => n > 0)
+    .map(([name, n]) => `
+    <div class="barrow">
+      <span class="lbl">${name}</span>
+      <span class="track"><i style="width:${n/wmax*100}%"></i></span>
+      <span class="val">${n}</span>
+    </div>`).join('');
+  const topDay = WD[Object.entries(weekday).sort((a, b) => b[1] - a[1])[0][0]];
+  const topDayN = Math.max(...Object.values(weekday));
+  document.getElementById('weekday-detail').textContent =
+    `${topDayN} von ${done.length} Abenden fielen auf einen ${topDay}.`;
 
   // Bezirke-Liste
   const bezRanked = Object.entries(bez).sort((a,b) => b[1]-a[1]);

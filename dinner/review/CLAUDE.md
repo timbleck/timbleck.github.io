@@ -26,7 +26,7 @@ python3 -m http.server 8765
 | `review.css` | Mobile-first Styles (ein Spalten-Layout, Cards, Bars, Lightbox) |
 | `review.js` | Lädt Daten + GeoJSON, baut Karte/Timeline/Statistiken, Lightbox |
 | `data.json` | **Eingefrorener, handkorrigierter Snapshot** aller 97 Einträge (s. u.) |
-| `photos/` | ~107 Original-Kamerafotos `IMG_xxxx.jpeg`, **nicht** nach Nummer benannt |
+| `photos/` | ~148 Original-Kamerafotos `IMG_xxxx.jpeg`, **nicht** nach Nummer benannt |
 
 Wiederverwendete Assets aus dem Nachbarordner: `../assets/leaflet/*` und `../assets/lor_ortsteile.geojson`.
 
@@ -71,7 +71,7 @@ In `review.js` als Sonderfall behandelt: fester Marker an `SCHLACHTENSEE = [52.4
 
 ## Fotos: Zuordnung per EXIF-Datum
 
-Die Fotos in `photos/` heißen nach Kamerasequenz (`IMG_xxxx.jpeg`), **nicht** nach Ortsteil/Nummer. Die Zuordnung zu Dinnern erfolgte **über das EXIF-Aufnahmedatum** (`sips -g creation`), gematcht auf das jeweilige `datum` (±1 Tag Toleranz für Nacht-/Tag-danach-Aufnahmen). Ergebnis: **alle 107 Fotos zugeordnet, 72 von 96 Dinnern haben Fotos.** Die übrigen 24 haben schlicht kein Foto im Ordner.
+Die Fotos in `photos/` heißen nach Kamerasequenz (`IMG_xxxx.jpeg`), **nicht** nach Ortsteil/Nummer. Die Zuordnung zu Dinnern erfolgte **über das EXIF-Aufnahmedatum** (`sips -g creation`), gematcht auf das jeweilige `datum` (±1 Tag Toleranz für Nacht-/Tag-danach-Aufnahmen). Ergebnis: **alle 148 Fotos zugeordnet, 95 von 96 Dinnern haben Fotos.** Nur 1 Dinner hat kein Foto im Ordner.
 
 **Neue Fotos hinzufügen:** Datei mit korrektem Aufnahmedatum in `photos/` legen, dann das Matching-Skript erneut laufen lassen, das `fotos`-Felder in `data.json` befüllt (EXIF-Datum → passendes `datum`). Cards ohne Foto fallen sauber auf eine 🍽️-Kachel zurück (`.card-photo.no-photo`).
 
