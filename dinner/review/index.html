@@ -39,7 +39,11 @@
       <p class="section-sub">Jedes rote Feld ein Abendessen. Tipp: auf einen Ortsteil tippen für das Lokal – oder die Tour abspielen.</p>
       <div class="map-stage">
         <div id="map">lädt …</div>
-        <button class="btn map-play" id="play">▶ Tour abspielen</button>
+        <div class="map-controls">
+          <button class="btn btn-step" id="tour-prev" aria-label="vorherige Station" hidden>‹</button>
+          <button class="btn map-play" id="play">▶ Tour abspielen</button>
+          <button class="btn btn-step" id="tour-next" aria-label="nächste Station" hidden>›</button>
+        </div>
       </div>
       <div id="tour-card" class="tour-card" hidden></div>
     </div>

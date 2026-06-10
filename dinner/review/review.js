@@ -106,12 +106,16 @@ function buildMap(geo, byName, done, finale) {
   const order = done.concat([finale]);
 
   const btn = document.getElementById('play');
-  const tour = { i: 0, running: false, started: false, order, path, styleDone, styleOff };
+  const tour = { cur: -1, running: false, order, path, styleDone, styleOff };
+  const atEnd = () => tour.cur >= tour.order.length - 1;
   btn.addEventListener('click', () => {
-    if (tour.running) pauseTour(tour, btn);                       // läuft -> anhalten
-    else if (!tour.started || tour.i >= order.length) startTour(tour, btn); // neu/zu Ende -> von vorn
-    else resumeTour(tour, btn);                                   // pausiert -> weiter
+    if (tour.running) pauseTour(tour, btn);                 // läuft -> anhalten
+    else if (tour.cur < 0 || atEnd()) startTour(tour, btn); // neu/zu Ende -> von vorn
+    else resumeTour(tour, btn);                             // pausiert -> weiter
   });
+  document.getElementById('tour-prev').addEventListener('click', () => tourNav(tour, btn, -1));
+  document.getElementById('tour-next').addEventListener('click', () => tourNav(tour, btn, +1));
+  updateNav(tour);
 }
 
 // "Du bist hier"-Marker der Tour auf die aktuelle Station setzen.
@@ -139,56 +143,82 @@ function setPlayBtn(btn, mode) {
                   :                     '▶ Tour abspielen';
 }
 
-// eine Station anzeigen und Index weiterzählen
-function tourStep(tour, btn) {
-  const v = tour.order[tour.i];
-  const layer = layersByName[v.ortsteil];
-  if (layer) layer.setStyle(tour.styleDone);
-  const c = centroidByName[v.ortsteil];
-  if (c) {
-    tour.path.addLatLng(c);
-    map.panTo(c, { animate: true, duration: 0.6 });
-    placeTourMarker(c);
-  }
-  showTourCard(v, !v.datum);
-  tour.i++;
-  if (tour.i >= tour.order.length) finishTour(tour, btn);
+function stopTimer() { if (animTimer) { clearInterval(animTimer); animTimer = null; } }
+
+// Vor/Zurück-Buttons ein-/ausblenden und an den Rändern deaktivieren.
+function updateNav(tour) {
+  const prev = document.getElementById('tour-prev');
+  const next = document.getElementById('tour-next');
+  if (!prev || !next) return;
+  const active = tour.cur >= 0;
+  prev.hidden = next.hidden = !active;
+  prev.disabled = tour.cur <= 0;
+  next.disabled = tour.cur >= tour.order.length - 1;
 }
 
-// Intervall (neu) starten
+// Zustand für die anzuzeigende Station k (0-basiert) komplett aufbauen.
+function renderStation(tour, k) {
+  tour.cur = k;
+  Object.values(layersByName).forEach(l => l.setStyle(tour.styleOff));
+  const pts = [];
+  for (let j = 0; j <= k; j++) {
+    const layer = layersByName[tour.order[j].ortsteil];
+    if (layer) layer.setStyle(tour.styleDone);
+    const c = centroidByName[tour.order[j].ortsteil];
+    if (c) pts.push(c);
+  }
+  tour.path.setLatLngs(pts);
+  const v = tour.order[k], c = centroidByName[v.ortsteil];
+  if (c) { map.panTo(c, { animate: true, duration: 0.6 }); placeTourMarker(c); }
+  showTourCard(v, !v.datum);
+  updateNav(tour);
+}
+
+// Auto-Intervall (neu) starten
 function runTour(tour, btn) {
-  if (animTimer) clearInterval(animTimer);
+  stopTimer();
   tour.running = true;
   setPlayBtn(btn, 'pause');
-  animTimer = setInterval(() => tourStep(tour, btn), TOUR_INTERVAL);
+  animTimer = setInterval(() => {
+    if (tour.cur >= tour.order.length - 1) { finishTour(tour, btn); return; }
+    renderStation(tour, tour.cur + 1);
+    if (tour.cur >= tour.order.length - 1) finishTour(tour, btn);
+  }, TOUR_INTERVAL);
 }
 
 function startTour(tour, btn) {
-  if (animTimer) clearInterval(animTimer);
-  Object.values(layersByName).forEach(l => l.setStyle(tour.styleOff)); // zurücksetzen
-  tour.path.setLatLngs([]);
-  tour.i = 0;
-  tour.started = true;
-  tourStep(tour, btn);                              // erste Station sofort
-  if (tour.i < tour.order.length) runTour(tour, btn);
+  stopTimer();
+  renderStation(tour, 0);          // erste Station sofort
+  runTour(tour, btn);
 }
 
 function resumeTour(tour, btn) {
-  tourStep(tour, btn);                              // sofort weiter
-  if (tour.i < tour.order.length) runTour(tour, btn);
+  renderStation(tour, tour.cur + 1);
+  if (tour.cur >= tour.order.length - 1) { finishTour(tour, btn); return; }
+  runTour(tour, btn);
 }
 
 function pauseTour(tour, btn) {
-  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  stopTimer();
   tour.running = false;
   setPlayBtn(btn, 'resume');
 }
 
+// manuelles Vor/Zurück: Auto-Tour anhalten und genau eine Station springen
+function tourNav(tour, btn, delta) {
+  stopTimer();
+  tour.running = false;
+  const k = Math.max(0, Math.min(tour.cur + delta, tour.order.length - 1));
+  renderStation(tour, k);
+  setPlayBtn(btn, k >= tour.order.length - 1 ? 'play' : 'resume');
+}
+
 function finishTour(tour, btn) {
-  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  stopTimer();
   tour.running = false;
   Object.values(layersByName).forEach(l => l.setStyle(tour.styleDone));
   setPlayBtn(btn, 'play');
+  updateNav(tour);
 }
 
 /* ---------- Timeline ---------- */
