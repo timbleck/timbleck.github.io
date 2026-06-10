@@ -21,6 +21,9 @@ html, body {
   font-family: system-ui, -apple-system, "Segoe UI", Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+  /* iPhone-Fotos enthalten HDR-Gain-Maps und würden auf HDR-Displays heller
+     als Weiß "leuchten" -> auf SDR-Referenzweiß begrenzen. */
+  dynamic-range-limit: standard;
 }
 
 img { max-width: 100%; display: block; }
