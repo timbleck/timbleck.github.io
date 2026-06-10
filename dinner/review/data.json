@@ -19,7 +19,10 @@
     "wer": "Tim",
     "kueche": "Polnisch",
     "beschreibung": "Wawel und dann ins Trauma",
-    "fotos": []
+    "fotos": [
+      "IMG_0198.jpeg",
+      "IMG_0199.jpeg"
+    ]
   },
   {
     "nr": 3,
@@ -54,7 +57,11 @@
     "wer": "Steve",
     "kueche": "Steak",
     "beschreibung": "Hazienda",
-    "fotos": []
+    "fotos": [
+      "IMG_0188.jpeg",
+      "IMG_0189.jpeg",
+      "IMG_0190.jpeg"
+    ]
   },
   {
     "nr": 6,
@@ -65,6 +72,7 @@
     "kueche": "Deutsch",
     "beschreibung": "Rabennest",
     "fotos": [
+      "IMG_0159.jpeg",
       "IMG_4412.jpeg",
       "IMG_4416.jpeg"
     ]
@@ -182,6 +190,7 @@
     "kueche": "Deutsch",
     "beschreibung": "Krokodil",
     "fotos": [
+      "IMG_0202.jpeg",
       "IMG_5102.jpeg"
     ]
   },
@@ -194,7 +203,8 @@
     "kueche": "Deutsch",
     "beschreibung": "Ente & Roulade im Floh und Capri-Sonne aufs Haus",
     "fotos": [
-      "IMG_5146.jpeg"
+      "IMG_5146.jpeg",
+      "IMG_7916.jpeg"
     ]
   },
   {
@@ -218,6 +228,7 @@
     "kueche": "Deutsch",
     "beschreibung": "Alte Leute Schmaus in G7 - Sascha Bester Mann",
     "fotos": [
+      "IMG_0171.jpeg",
       "IMG_7972.jpeg"
     ]
   },
@@ -230,6 +241,7 @@
     "kueche": "Fränkisch",
     "beschreibung": "Schäufele und Schnodderkraut bei Maisel’s Einkehr",
     "fotos": [
+      "IMG_0172.jpeg",
       "IMG_7996.jpeg",
       "IMG_7998.jpeg"
     ]
@@ -243,6 +255,7 @@
     "kueche": "Chinesisch",
     "beschreibung": "Wu's - Fernöstliche Ente im Westen",
     "fotos": [
+      "IMG_0182.jpeg",
       "IMG_5185.jpeg"
     ]
   },
@@ -266,7 +279,10 @@
     "wer": "Tim",
     "kueche": "Kroatisch",
     "beschreibung": "Restaurant Luitpold",
-    "fotos": []
+    "fotos": [
+      "IMG_0173.jpeg",
+      "IMG_0174.jpeg"
+    ]
   },
   {
     "nr": 23,
@@ -276,7 +292,9 @@
     "wer": "Steve",
     "kueche": "Italienisch",
     "beschreibung": "Al Castagno Pizza und Pasta beim feinsten Italiener",
-    "fotos": []
+    "fotos": [
+      "IMG_0160.jpeg"
+    ]
   },
   {
     "nr": 24,
@@ -299,7 +317,9 @@
     "wer": "Steve",
     "kueche": "Deutsch",
     "beschreibung": "Der Eiserne Gustav",
-    "fotos": []
+    "fotos": [
+      "IMG_0150.jpeg"
+    ]
   },
   {
     "nr": 26,
@@ -309,7 +329,9 @@
     "wer": "Tim",
     "kueche": "Vietnamesisch",
     "beschreibung": "Reste-Suppe im Duc Anh Quan (Don Xuang) & Billigbier im Mollenfriedhof",
-    "fotos": []
+    "fotos": [
+      "IMG_0125.jpeg"
+    ]
   },
   {
     "nr": 27,
@@ -369,6 +391,7 @@
     "kueche": "Supermarkt",
     "beschreibung": "Hotdogs vom Netto mit nem lecker Jubi",
     "fotos": [
+      "IMG_0127.jpeg",
       "IMG_5611.jpeg"
     ]
   },
@@ -394,6 +417,7 @@
     "kueche": "Deutsch",
     "beschreibung": "Golf Resort Berlin Pankow, Bierchen im Club danach Currywurst im nachbar Ortsteil",
     "fotos": [
+      "IMG_0151.jpeg",
       "IMG_5667.jpeg",
       "IMG_5668.jpeg"
     ]
@@ -406,7 +430,9 @@
     "wer": "Tim",
     "kueche": "Deutsch",
     "beschreibung": "Zum Alten Krug",
-    "fotos": []
+    "fotos": [
+      "IMG_0144.jpeg"
+    ]
   },
   {
     "nr": 35,
@@ -416,7 +442,9 @@
     "wer": "Steve",
     "kueche": "Griechisch",
     "beschreibung": "Greekfood Olympia",
-    "fotos": []
+    "fotos": [
+      "IMG_0206.jpeg"
+    ]
   },
   {
     "nr": 36,
@@ -426,7 +454,9 @@
     "wer": "Tim",
     "kueche": "Deutsch",
     "beschreibung": "Zum Bohnsdorfer Eck",
-    "fotos": []
+    "fotos": [
+      "IMG_0207.jpeg"
+    ]
   },
   {
     "nr": 37,
@@ -461,8 +491,8 @@
     "kueche": "Deutsch",
     "beschreibung": "Hafenküche",
     "fotos": [
-      "IMG_5777.jpeg",
       "IMG_0433.jpeg",
+      "IMG_5777.jpeg",
       "IMG_5778.jpeg"
     ]
   },
@@ -499,7 +529,9 @@
     "wer": "Tim",
     "kueche": "Brazilanisch",
     "beschreibung": "Tucano",
-    "fotos": []
+    "fotos": [
+      "IMG_0131.jpeg"
+    ]
   },
   {
     "nr": 43,
@@ -509,7 +541,9 @@
     "wer": "Steve",
     "kueche": "Türkisch",
     "beschreibung": "Beyoglu",
-    "fotos": []
+    "fotos": [
+      "IMG_0167.jpeg"
+    ]
   },
   {
     "nr": 44,
@@ -520,6 +554,7 @@
     "kueche": "Italienisch",
     "beschreibung": "Il Castello",
     "fotos": [
+      "IMG_0153.jpeg",
       "IMG_5849.jpeg"
     ]
   },
@@ -531,7 +566,9 @@
     "wer": "Steve",
     "kueche": "Deutsch",
     "beschreibung": "Friedrich",
-    "fotos": []
+    "fotos": [
+      "IMG_0154.jpeg"
+    ]
   },
   {
     "nr": 46,
@@ -541,7 +578,9 @@
     "wer": "Tim",
     "kueche": "Mazedonisch",
     "beschreibung": "Staro Skopje",
-    "fotos": []
+    "fotos": [
+      "IMG_0168.jpeg"
+    ]
   },
   {
     "nr": 47,
@@ -551,7 +590,10 @@
     "wer": "Steve",
     "kueche": "Deutsch/Imbiss",
     "beschreibung": "Frohsinn - Gaststätte und Vereinsheim",
-    "fotos": []
+    "fotos": [
+      "IMG_0156.jpeg",
+      "IMG_0157.jpeg"
+    ]
   },
   {
     "nr": 48,
@@ -574,6 +616,7 @@
     "kueche": "Deutsch",
     "beschreibung": "Gasthof zum Oberfeld",
     "fotos": [
+      "IMG_0136.jpeg",
       "IMG_0184.jpeg"
     ]
   },
@@ -586,6 +629,7 @@
     "kueche": "Peruanisch",
     "beschreibung": "Sabor Latino",
     "fotos": [
+      "IMG_0121.jpeg",
       "IMG_0203.jpeg"
     ]
   },
@@ -623,7 +667,9 @@
     "wer": "Steve",
     "kueche": "Koreanisch",
     "beschreibung": "The Luftbrücke",
-    "fotos": []
+    "fotos": [
+      "IMG_0192.jpeg"
+    ]
   },
   {
     "nr": 54,
@@ -682,7 +728,10 @@
     "wer": "Tim",
     "kueche": "Thüringisch",
     "beschreibung": "Obersdorfer Eck",
-    "fotos": []
+    "fotos": [
+      "IMG_0176.jpeg",
+      "IMG_0177.jpeg"
+    ]
   },
   {
     "nr": 59,
@@ -780,6 +829,7 @@
     "kueche": "Georgisch",
     "beschreibung": "Shemomedjamo",
     "fotos": [
+      "IMG_0183.jpeg",
       "IMG_0763.jpeg",
       "IMG_0766.jpeg"
     ]
@@ -843,7 +893,9 @@
     "wer": "Steve",
     "kueche": "Spanisch",
     "beschreibung": "El Pepe Tappas",
-    "fotos": []
+    "fotos": [
+      "IMG_0140.jpeg"
+    ]
   },
   {
     "nr": 72,
@@ -853,7 +905,9 @@
     "wer": "Tim",
     "kueche": "Chilenisch",
     "beschreibung": "La tia Rica",
-    "fotos": []
+    "fotos": [
+      "IMG_0925.jpeg"
+    ]
   },
   {
     "nr": 73,
@@ -1032,7 +1086,9 @@
     "wer": "Steve",
     "kueche": "Böhmisch",
     "beschreibung": "Böhmischer Garten",
-    "fotos": []
+    "fotos": [
+      "IMG_1655.jpeg"
+    ]
   },
   {
     "nr": 88,
@@ -1042,7 +1098,9 @@
     "wer": "Tim",
     "kueche": "Deutsch",
     "beschreibung": "Hafen Domizil",
-    "fotos": []
+    "fotos": [
+      "IMG_1703.jpeg"
+    ]
   },
   {
     "nr": 89,
@@ -1104,7 +1162,9 @@
     "wer": "Steve",
     "kueche": "Deutsch",
     "beschreibung": "Schäferstübchen",
-    "fotos": []
+    "fotos": [
+      "IMG_1819.jpeg"
+    ]
   },
   {
     "nr": 94,
@@ -1114,7 +1174,9 @@
     "wer": "Tim",
     "kueche": "Deutsch",
     "beschreibung": "Landhaus Grunewald",
-    "fotos": []
+    "fotos": [
+      "IMG_1840.jpeg"
+    ]
   },
   {
     "nr": 95,
@@ -1136,7 +1198,9 @@
     "wer": "Tim",
     "kueche": "Deutsch",
     "beschreibung": "Bollenpiepe",
-    "fotos": []
+    "fotos": [
+      "IMG_3539.jpeg"
+    ]
   },
   {
     "nr": 97,
