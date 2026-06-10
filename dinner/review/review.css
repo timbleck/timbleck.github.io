@@ -112,19 +112,21 @@ section > h2 {
 /* ---------- Map ---------- */
 .map-section { max-width: none; padding-left: 0; padding-right: 0; }
 .map-wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+.map-stage { position: relative; }
 #map {
-  height: 420px;
+  height: 320px;
   border-radius: 16px;
   box-shadow: var(--shadow);
   overflow: hidden;
   background: #f3e6e8;
 }
-.map-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  flex-wrap: wrap;
+/* Tour-Button als Overlay unten links in der Karte */
+.map-play {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
 }
 .btn {
   border: none;
@@ -138,13 +140,14 @@ section > h2 {
 }
 .btn:hover { background: #a50d26; }
 .btn:disabled { opacity: 0.5; cursor: default; }
-.map-caption {
-  flex: 1 1 200px;
-  min-height: 38px;
-  font-size: 14px;
-  color: var(--muted);
+/* Card der aktuellen Tour-Station, unter der Karte eingeblendet */
+.tour-card { margin-top: 16px; }
+.tour-card[hidden] { display: none; }
+.tour-card .card {
+  margin-bottom: 0;
+  border-color: var(--red-soft);
+  box-shadow: 0 6px 22px rgba(200,16,46,0.14);
 }
-.map-caption b { color: var(--ink); }
 
 /* ---------- Timeline ---------- */
 .year-divider {
@@ -398,4 +401,5 @@ footer a { color: var(--red); }
 @media (min-width: 560px) {
   .card-photo { flex-basis: 168px; width: 168px; }
   .stat-grid { grid-template-columns: repeat(4, 1fr); }
+  #map { height: 420px; }
 }

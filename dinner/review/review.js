@@ -32,7 +32,7 @@ function centroid(geometry) {
   return [lat / n, lon / n];
 }
 
-let map, animTimer = null, finaleMarker = null;
+let map, animTimer = null, finaleMarker = null, tourMarker = null;
 const layersByName = {}, centroidByName = {};
 const TOUR_INTERVAL = 2500; // ms pro Station
 // Popups beschränken + im Kartenausschnitt halten, damit nichts abgeschnitten wird
@@ -108,19 +108,28 @@ function buildMap(geo, byName, done, finale) {
   document.getElementById('play').addEventListener('click', () => playTour(order, path, styleDone, styleOff));
 }
 
-// Karte so verschieben, dass der Ortsteil ~110px unter der Mitte liegt,
-// damit das nach oben öffnende Popup auch im Norden komplett Platz hat.
-function panForPopup(latlng) {
-  if (!map) return;
-  const z = map.getZoom();
-  const p = map.project(latlng, z).subtract([0, 110]);
-  map.panTo(map.unproject(p, z), { animate: true, duration: 0.6 });
+// "Du bist hier"-Marker der Tour auf die aktuelle Station setzen.
+function placeTourMarker(latlng) {
+  if (!tourMarker) {
+    tourMarker = L.circleMarker(latlng, {
+      radius: 9, color: '#fff', weight: 3, fillColor: '#c8102e', fillOpacity: 1
+    });
+  }
+  tourMarker.setLatLng(latlng);
+  if (!map.hasLayer(tourMarker)) tourMarker.addTo(map);
+}
+
+// Card der aktuellen Station unter der Karte einblenden (statt Popup).
+function showTourCard(v, finale) {
+  const el = document.getElementById('tour-card');
+  if (!el) return;
+  el.innerHTML = cardMarkup(v, finale);
+  el.hidden = false;
 }
 
 function playTour(order, path, styleDone, styleOff) {
   if (animTimer) clearInterval(animTimer);
   const btn = document.getElementById('play');
-  const cap = document.getElementById('map-caption');
   btn.disabled = true;
   // zurücksetzen
   Object.values(layersByName).forEach(l => l.setStyle(styleOff));
@@ -133,17 +142,10 @@ function playTour(order, path, styleDone, styleOff) {
     const c = centroidByName[v.ortsteil];
     if (c) {
       path.addLatLng(c);
-      panForPopup(c);  // Ortsteil unter die Mitte rücken -> Platz fürs Popup darüber
+      map.panTo(c, { animate: true, duration: 0.6 });
+      placeTourMarker(c);
     }
-    const isFin = !v.datum;
-    if (isFin) {
-      if (finaleMarker) finaleMarker.openPopup();
-    } else if (layer) {
-      layer.openPopup();
-    }
-    cap.innerHTML = isFin
-      ? `🏁 <b>Finale – ${v.ortsteil}</b>`
-      : `<b>#${v.nr} · ${v.ortsteil}</b> — ${v.beschreibung} (${v.kueche}) · ${fmtDate(v.datum)}`;
+    showTourCard(v, !v.datum);
     i++;
     if (i >= order.length) {
       clearInterval(animTimer); animTimer = null;
