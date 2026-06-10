@@ -73,8 +73,8 @@ function buildMap(geo, byName, done, finale) {
     attribution: '© OpenStreetMap, Geoportal Berlin / Ortsteile von Berlin'
   }).addTo(map);
 
-  const styleDone = { color: "#fff", opacity: 1, fillColor: "#50C878", fillOpacity: 0.55, weight: 1 };
-  const styleOff  = { color: "#fff", opacity: 0.6, fillColor: "#9aa39d", fillOpacity: 0.18, weight: 1 };
+  const styleDone = { color: "#fff", opacity: 1, fillColor: "#c8102e", fillOpacity: 0.6, weight: 1 };
+  const styleOff  = { color: "#fff", opacity: 0.6, fillColor: "#caa6ab", fillOpacity: 0.18, weight: 1 };
 
   L.geoJson(geo, {
     style: styleDone,
@@ -99,7 +99,7 @@ function buildMap(geo, byName, done, finale) {
     .bindPopup(`<em>${finale.ortsteil} (${finale.bezirk})</em><br><strong>Das große Finale</strong>`, POPUP_OPTS);
 
   // animierter Pfad
-  const path = L.polyline([], { color: "#2e9e5b", weight: 3, opacity: 0.85, dashArray: "1 6", lineCap: "round" }).addTo(map);
+  const path = L.polyline([], { color: "#c8102e", weight: 3, opacity: 0.85, dashArray: "1 6", lineCap: "round" }).addTo(map);
   const order = done.concat([finale]);
 
   document.getElementById('play').addEventListener('click', () => playTour(order, path, styleDone, styleOff));

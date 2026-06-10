@@ -1,14 +1,14 @@
 :root {
-  --green: #2e9e5b;
-  --green-soft: #50C878;
-  --bg: #faf9f6;
+  --red: #c8102e;
+  --red-soft: #e84855;
+  --bg: #ffffff;
   --card: #ffffff;
-  --ink: #1f2421;
-  --muted: #6b746e;
-  --line: #e7e4dd;
+  --ink: #1f1c1d;
+  --muted: #75696b;
+  --line: #f0dcdf;
   --steve: #e08a3c;
   --tim: #3c79e0;
-  --shadow: 0 4px 18px rgba(31,36,33,0.08);
+  --shadow: 0 4px 18px rgba(200,16,46,0.08);
 }
 
 * { box-sizing: border-box; }
@@ -34,7 +34,7 @@ img { max-width: 100%; display: block; }
   gap: 4px;
   justify-content: center;
   padding: 10px 8px;
-  background: rgba(250,249,246,0.92);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
@@ -47,7 +47,7 @@ img { max-width: 100%; display: block; }
   border-radius: 999px;
   white-space: nowrap;
 }
-.nav a:hover { color: var(--green); background: rgba(46,158,91,0.08); }
+.nav a:hover { color: var(--red); background: rgba(200,16,46,0.08); }
 
 /* ---------- Layout ---------- */
 section { padding: 48px 20px; max-width: 760px; margin: 0 auto; }
@@ -64,7 +64,7 @@ section > h2 {
   text-align: center;
   color: #fff;
   background:
-    radial-gradient(120% 120% at 50% 0%, #3bbf72 0%, #2e9e5b 45%, #1f7a45 100%);
+    radial-gradient(120% 120% at 50% 0%, #e23744 0%, #c8102e 45%, #8f0c20 100%);
   padding: 64px 20px 56px;
 }
 .hero .kicker {
@@ -114,7 +114,7 @@ section > h2 {
   border-radius: 16px;
   box-shadow: var(--shadow);
   overflow: hidden;
-  background: #dfe7e3;
+  background: #f3e6e8;
 }
 .map-controls {
   display: flex;
@@ -125,7 +125,7 @@ section > h2 {
 }
 .btn {
   border: none;
-  background: var(--green);
+  background: var(--red);
   color: #fff;
   font-weight: 700;
   font-size: 14px;
@@ -133,7 +133,7 @@ section > h2 {
   border-radius: 999px;
   cursor: pointer;
 }
-.btn:hover { background: #277f49; }
+.btn:hover { background: #a50d26; }
 .btn:disabled { opacity: 0.5; cursor: default; }
 .map-caption {
   flex: 1 1 200px;
@@ -151,7 +151,7 @@ section > h2 {
   margin: 30px 0 18px;
   font-weight: 800;
   font-size: 18px;
-  color: var(--green);
+  color: var(--red);
 }
 .year-divider::after {
   content: "";
@@ -175,7 +175,7 @@ section > h2 {
   height: 84px;
   border-radius: 12px;
   overflow: hidden;
-  background: linear-gradient(135deg, #eef3f0, #dfeae3);
+  background: linear-gradient(135deg, #fbeef0, #f3dde0);
   position: relative;
 }
 .card-photo img { width: 100%; height: 100%; object-fit: cover; }
@@ -245,7 +245,7 @@ section > h2 {
   font-size: 12px;
   font-weight: 800;
   color: #fff;
-  background: var(--green);
+  background: var(--red);
   border-radius: 999px;
   padding: 2px 9px;
   flex: 0 0 auto;
@@ -259,12 +259,12 @@ section > h2 {
   font-weight: 600;
   padding: 3px 9px;
   border-radius: 999px;
-  background: #f0efe9;
+  background: #f6eced;
   color: var(--ink);
 }
 .tag.who-Steve { background: rgba(224,138,60,0.15); color: #b5630f; }
 .tag.who-Tim { background: rgba(60,121,224,0.15); color: #2456a8; }
-.tag.cuisine { background: rgba(46,158,91,0.12); color: #1f7a45; }
+.tag.cuisine { background: rgba(200,16,46,0.12); color: #9a0c22; }
 
 .card.finale {
   background: linear-gradient(135deg, #fff8ec, #fdeccd);
@@ -287,7 +287,7 @@ section > h2 {
   padding: 18px;
   box-shadow: var(--shadow);
 }
-.stat b { display: block; font-size: 30px; line-height: 1; letter-spacing: -0.02em; color: var(--green); }
+.stat b { display: block; font-size: 30px; line-height: 1; letter-spacing: -0.02em; color: var(--red); }
 .stat span { font-size: 13px; color: var(--muted); }
 
 .panel {
@@ -315,7 +315,7 @@ section > h2 {
 .barrow { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 14px; }
 .barrow .lbl { flex: 0 0 96px; }
 .barrow .track { flex: 1; background: #f0efe9; border-radius: 999px; height: 16px; overflow: hidden; }
-.barrow .track i { display: block; height: 100%; background: var(--green-soft); border-radius: 999px; }
+.barrow .track i { display: block; height: 100%; background: var(--red-soft); border-radius: 999px; }
 .barrow .val { flex: 0 0 28px; text-align: right; color: var(--muted); font-weight: 600; }
 
 footer {
@@ -324,7 +324,7 @@ footer {
   color: var(--muted);
   font-size: 13px;
 }
-footer a { color: var(--green); }
+footer a { color: var(--red); }
 
 @media (min-width: 560px) {
   .card-photo { flex-basis: 110px; width: 110px; height: 110px; }
