@@ -237,10 +237,10 @@ function buildStats(done) {
     if (a && b) dist += haversine(a, b);
   }
   // längste Pause
-  let gap = 0, gapTxt = "";
+  let gap = 0;
   for (let i = 1; i < done.length; i++) {
     const d = (parseDate(done[i].datum) - parseDate(done[i-1].datum)) / (1000*60*60*24);
-    if (d > gap) { gap = d; gapTxt = `${done[i-1].ortsteil} → ${done[i].ortsteil}`; }
+    if (d > gap) gap = d;
   }
   // Küchen
   const cuisine = {};
@@ -359,8 +359,6 @@ function buildStats(done) {
       <span class="track"><i style="width:${n/bmax*100}%"></i></span>
       <span class="val">${n}</span>
     </div>`).join('');
-
-  document.getElementById('gap-detail').textContent = gapTxt ? `längste Pause: ${gapTxt}` : "";
 }
 
 /* ---------- Lightbox ---------- */
