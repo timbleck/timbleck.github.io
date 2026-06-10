@@ -86,8 +86,10 @@ function buildMap(geo, byName, done, finale) {
       let html = `<em>${name} (${f.properties.BEZIRK})</em>`;
       if (v) {
         html += `<br><strong>${v.beschreibung} – ${v.kueche}</strong><br>${fmtDate(v.datum)} · ${v.wer}`;
-        if (v.fotos && v.fotos.length)
+        if (v.fotos && v.fotos.length === 1)
           html += `<br><img class="popup-foto" src="photos/${v.fotos[0]}" alt="" loading="lazy">`;
+        else if (v.fotos && v.fotos.length > 1)
+          html += `<div class="popup-mosaic">${photoMosaic(v.fotos)}</div>`;
       }
       layer.bindPopup(html, POPUP_OPTS);
     }
@@ -172,13 +174,27 @@ function buildTimeline(done, finale) {
   wrap.appendChild(finaleCard(finale));
 }
 
+// Mosaik aus bis zu 4 Fotos; mehr Bilder werden auf der letzten Kachel als "+N" angezeigt.
+function photoMosaic(fotos, onerror = "") {
+  const MAX = 4;
+  const shown = fotos.slice(0, MAX);
+  const extra = fotos.length - MAX;
+  return `<div class="photo-mosaic n${shown.length}">
+    ${shown.map((f, i) => {
+      const more = (i === MAX - 1 && extra > 0)
+        ? `<span class="mosaic-more">+${extra}</span>` : ``;
+      return `<div class="mosaic-tile" data-idx="${i}">
+                <img loading="lazy" src="photos/${f}" alt=""${onerror}>${more}
+              </div>`;
+    }).join('')}
+  </div>`;
+}
+
 function photoCell(v) {
   const fotos = v.fotos || [];
   if (!fotos.length) return `<div class="card-photo no-photo"></div>`;
-  const badge = fotos.length > 1 ? `<span class="photo-badge">+${fotos.length - 1}</span>` : ``;
   return `<div class="card-photo" data-fotos='${JSON.stringify(fotos)}'>
-            <img loading="lazy" src="photos/${fotos[0]}" alt=""
-                 onerror="this.parentNode.classList.add('no-photo')">${badge}
+            ${photoMosaic(fotos, ` onerror="this.closest('.card-photo').classList.add('no-photo')"`)}
           </div>`;
 }
 
@@ -289,7 +305,10 @@ function setupLightbox() {
   document.getElementById('timeline').addEventListener('click', e => {
     const cell = e.target.closest('.card-photo');
     if (!cell || !cell.dataset.fotos) return;
-    list = JSON.parse(cell.dataset.fotos); idx = 0; show();
+    list = JSON.parse(cell.dataset.fotos);
+    const tile = e.target.closest('.mosaic-tile');
+    idx = tile ? Number(tile.dataset.idx) : 0;
+    show();
     box.classList.add('open');
   });
   box.addEventListener('click', e => {
