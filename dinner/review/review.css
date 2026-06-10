@@ -182,18 +182,47 @@ section > h2 {
 .card-photo { cursor: pointer; }
 .card-photo.no-photo { cursor: default; }
 .card-photo.no-photo img { display: none; }
-.photo-badge {
-  position: absolute;
-  right: 4px;
-  bottom: 4px;
-  background: rgba(31,36,33,0.78);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 1px 6px;
-  border-radius: 999px;
+
+/* ---------- Foto-Mosaik ---------- */
+.photo-mosaic {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
 }
+.photo-mosaic .mosaic-tile {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+.photo-mosaic .mosaic-tile img { width: 100%; height: 100%; object-fit: cover; }
+.photo-mosaic.n1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.photo-mosaic.n2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+.photo-mosaic.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.photo-mosaic.n3 .mosaic-tile:first-child { grid-row: 1 / span 2; }
+.photo-mosaic.n4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.mosaic-more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31,28,29,0.55);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+}
+
 .popup-foto { width: 200px; max-width: 56vw; max-height: 130px; object-fit: cover; border-radius: 8px; margin-top: 6px; }
+.popup-mosaic {
+  width: 200px;
+  max-width: 56vw;
+  aspect-ratio: 1;
+  margin-top: 6px;
+  border-radius: 8px;
+  overflow: hidden;
+}
 
 /* lightbox */
 .lightbox {
