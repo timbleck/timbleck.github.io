@@ -36,7 +36,7 @@ let map, animTimer = null, finaleMarker = null;
 const layersByName = {}, centroidByName = {};
 const TOUR_INTERVAL = 2500; // ms pro Station
 // Popups beschränken + im Kartenausschnitt halten, damit nichts abgeschnitten wird
-const POPUP_OPTS = { maxWidth: 360, minWidth: 320, autoPanPadding: [24, 24], keepInView: true };
+const POPUP_OPTS = { maxWidth: 520, minWidth: 300, autoPanPadding: [24, 24], keepInView: true };
 
 async function init() {
   const [data, geo] = await Promise.all([

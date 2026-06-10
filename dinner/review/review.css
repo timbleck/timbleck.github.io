@@ -226,7 +226,8 @@ section > h2 {
   box-shadow: none;
   gap: 12px;
 }
-.leaflet-popup-content .card-photo { flex-basis: 132px; width: 132px; }
+.leaflet-popup-content .card { align-items: flex-start; }
+.leaflet-popup-content .card-photo { flex: 0 0 auto; width: min(220px, 46vw); align-self: flex-start; }
 .leaflet-popup-content .card-tags { margin-top: 2px; }
 .leaflet-popup-content .card-head { padding-right: 14px; } /* Platz für × */
 .leaflet-popup-close-button {
