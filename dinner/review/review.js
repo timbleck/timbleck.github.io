@@ -105,7 +105,13 @@ function buildMap(geo, byName, done, finale) {
   const path = L.polyline([], { color: "#c8102e", weight: 3, opacity: 0.85, dashArray: "1 6", lineCap: "round" }).addTo(map);
   const order = done.concat([finale]);
 
-  document.getElementById('play').addEventListener('click', () => playTour(order, path, styleDone, styleOff));
+  const btn = document.getElementById('play');
+  const tour = { i: 0, running: false, started: false, order, path, styleDone, styleOff };
+  btn.addEventListener('click', () => {
+    if (tour.running) pauseTour(tour, btn);                       // läuft -> anhalten
+    else if (!tour.started || tour.i >= order.length) startTour(tour, btn); // neu/zu Ende -> von vorn
+    else resumeTour(tour, btn);                                   // pausiert -> weiter
+  });
 }
 
 // "Du bist hier"-Marker der Tour auf die aktuelle Station setzen.
@@ -127,36 +133,62 @@ function showTourCard(v, finale) {
   el.hidden = false;
 }
 
-function playTour(order, path, styleDone, styleOff) {
+function setPlayBtn(btn, mode) {
+  btn.textContent = mode === 'pause'  ? '⏸ Pause'
+                  : mode === 'resume' ? '▶ Fortsetzen'
+                  :                     '▶ Tour abspielen';
+}
+
+// eine Station anzeigen und Index weiterzählen
+function tourStep(tour, btn) {
+  const v = tour.order[tour.i];
+  const layer = layersByName[v.ortsteil];
+  if (layer) layer.setStyle(tour.styleDone);
+  const c = centroidByName[v.ortsteil];
+  if (c) {
+    tour.path.addLatLng(c);
+    map.panTo(c, { animate: true, duration: 0.6 });
+    placeTourMarker(c);
+  }
+  showTourCard(v, !v.datum);
+  tour.i++;
+  if (tour.i >= tour.order.length) finishTour(tour, btn);
+}
+
+// Intervall (neu) starten
+function runTour(tour, btn) {
   if (animTimer) clearInterval(animTimer);
-  const btn = document.getElementById('play');
-  btn.disabled = true;
-  // zurücksetzen
-  Object.values(layersByName).forEach(l => l.setStyle(styleOff));
-  path.setLatLngs([]);
+  tour.running = true;
+  setPlayBtn(btn, 'pause');
+  animTimer = setInterval(() => tourStep(tour, btn), TOUR_INTERVAL);
+}
 
-  const step = () => {
-    const v = order[i];
-    const layer = layersByName[v.ortsteil];
-    if (layer) layer.setStyle(styleDone);
-    const c = centroidByName[v.ortsteil];
-    if (c) {
-      path.addLatLng(c);
-      map.panTo(c, { animate: true, duration: 0.6 });
-      placeTourMarker(c);
-    }
-    showTourCard(v, !v.datum);
-    i++;
-    if (i >= order.length) {
-      clearInterval(animTimer); animTimer = null;
-      btn.disabled = false;
-      Object.values(layersByName).forEach(l => l.setStyle(styleDone));
-    }
-  };
+function startTour(tour, btn) {
+  if (animTimer) clearInterval(animTimer);
+  Object.values(layersByName).forEach(l => l.setStyle(tour.styleOff)); // zurücksetzen
+  tour.path.setLatLngs([]);
+  tour.i = 0;
+  tour.started = true;
+  tourStep(tour, btn);                              // erste Station sofort
+  if (tour.i < tour.order.length) runTour(tour, btn);
+}
 
-  let i = 0;
-  step();                       // erste Station sofort zeigen
-  animTimer = setInterval(step, TOUR_INTERVAL);
+function resumeTour(tour, btn) {
+  tourStep(tour, btn);                              // sofort weiter
+  if (tour.i < tour.order.length) runTour(tour, btn);
+}
+
+function pauseTour(tour, btn) {
+  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  tour.running = false;
+  setPlayBtn(btn, 'resume');
+}
+
+function finishTour(tour, btn) {
+  if (animTimer) { clearInterval(animTimer); animTimer = null; }
+  tour.running = false;
+  Object.values(layersByName).forEach(l => l.setStyle(tour.styleDone));
+  setPlayBtn(btn, 'play');
 }
 
 /* ---------- Timeline ---------- */
