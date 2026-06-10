@@ -267,14 +267,22 @@ function buildStats(done) {
     <div class="bar"><i class="s" style="width:${s/sum*100}%"></i><i class="t" style="width:${t/sum*100}%"></i></div>
     <div class="side Tim"><b>${t}</b><span>Tim</span></div>`;
 
-  // Küchen-Ranking (Top 8)
+  // Küchen: mehrfach besuchte als Balken, einmalige als Tag-Liste darunter
   const max = ranked[0][1];
-  document.getElementById('cuisines').innerHTML = ranked.slice(0, 8).map(([k, n]) => `
+  const multi = ranked.filter(([, n]) => n > 1);
+  const once  = ranked.filter(([, n]) => n === 1);
+  const bars = multi.map(([k, n]) => `
     <div class="barrow">
       <span class="lbl">${k}</span>
       <span class="track"><i style="width:${n/max*100}%"></i></span>
       <span class="val">${n}</span>
     </div>`).join('');
+  const tags = once.length ? `
+    <p class="cuisine-once-label">…und je einmal probiert:</p>
+    <div class="cuisine-tags">
+      ${once.map(([k]) => `<span class="ctag">${k}</span>`).join('')}
+    </div>` : '';
+  document.getElementById('cuisines').innerHTML = bars + tags;
 
   // Bezirke-Liste
   const bezRanked = Object.entries(bez).sort((a,b) => b[1]-a[1]);

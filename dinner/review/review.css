@@ -360,6 +360,18 @@ section > h2 {
 .barrow .track i { display: block; height: 100%; background: var(--red-soft); border-radius: 999px; }
 .barrow .val { flex: 0 0 28px; text-align: right; color: var(--muted); font-weight: 600; }
 
+/* einmal probierte Küchen als Tag-Liste */
+.cuisine-once-label { font-size: 13px; color: var(--muted); margin: 14px 0 9px; }
+.cuisine-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.cuisine-tags .ctag {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f6eced;
+  color: var(--ink);
+}
+
 footer {
   text-align: center;
   padding: 40px 20px 60px;
