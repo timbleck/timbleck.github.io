@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biergärten in Berlin</title>
+  <link rel="stylesheet" type="text/css" href="assets/leaflet/leaflet.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <header id="header">
+    <h1>🍺 Biergärten in Berlin</h1>
+    <input id="search" type="search" placeholder="Suche nach Name, Bezirk oder Adresse …">
+  </header>
+
+  <div id="layout">
+    <aside id="sidebar">
+      <ul id="list"></ul>
+    </aside>
+    <main id="map"></main>
+  </div>
+
+  <script src="assets/leaflet/leaflet.js" type="text/javascript"></script>
+  <script src="data.js" type="text/javascript"></script>
+  <script src="app.js" type="text/javascript"></script>
+</body>
+</html>
